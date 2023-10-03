@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D playerRigid;
-    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity;
+    private float playerDirectionHorizontal,playerDirectionVertical,playerVelocity,xPosition,yPosition;
 
     private void Awake()
     {
@@ -20,9 +21,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {   
-        Movement();
-        
-        //testing
+        Movement();//playermovement        
     }
 
     void Movement()
@@ -30,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
         playerDirectionHorizontal = Input.GetAxis("Horizontal");
         playerDirectionVertical = Input.GetAxis("Vertical");
         playerRigid.velocity=new Vector2 (playerDirectionHorizontal * playerVelocity, playerDirectionVertical * playerVelocity);
-        Debug.Log(playerRigid.velocity);
+        transform.position = new Vector2(Mathf.Clamp(transform.position.x, -8.5f, 8.5f), Mathf.Clamp(transform.position.y, -4.5f, 4.5f));
     }
 
 }
