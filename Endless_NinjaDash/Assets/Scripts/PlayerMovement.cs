@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D playerRigid;
-    private float playerDirection,playerVelocity;
+    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity;
 
     private void Awake()
     {
@@ -20,14 +20,17 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {   
-        HorizontalMove();
+        Movement();
+        
         //testing
     }
 
-    void HorizontalMove()
+    void Movement()
     {
-        playerDirection = Input.GetAxis("Horizontal");
-        playerRigid.velocity=new Vector2 (playerDirection*playerVelocity,0);
-     
+        playerDirectionHorizontal = Input.GetAxis("Horizontal");
+        playerDirectionVertical = Input.GetAxis("Vertical");
+        playerRigid.velocity=new Vector2 (playerDirectionHorizontal * playerVelocity, playerDirectionVertical * playerVelocity);
+        Debug.Log(playerRigid.velocity);
     }
+
 }
