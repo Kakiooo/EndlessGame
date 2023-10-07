@@ -7,13 +7,14 @@ public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D playerRigid;
     private float playerDirectionHorizontal,playerDirectionVertical,playerVelocity;
-    public float playerHealth;
+    public float playerHealth, decayTime;
 
     private void Awake()
     {
         playerRigid = GetComponent<Rigidbody2D>();
         playerVelocity = 10f;
         playerHealth = 100;
+        decayTime = 4;
     }
     void Start()
     {
@@ -38,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     {
        if (GameManager.instance.gameFlow == GameManager.GameFlow.gameStart)
         {
-            playerHealth -= 4*Time.deltaTime;
+            playerHealth -= decayTime*Time.deltaTime;//health decay logic
         }
     }
 
