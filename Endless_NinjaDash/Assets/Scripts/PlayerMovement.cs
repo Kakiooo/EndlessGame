@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
         playerVelocity = 10f;
         playerHealth = 100;
         decayTime = 4;
+        
     }
     void Start()
     {
@@ -23,7 +24,8 @@ public class PlayerMovement : MonoBehaviour
 
 
     void Update()
-    {   
+    {
+        DontDestroyOnLoad(gameObject);
         Movement();//playermovement
         Health();
     }
@@ -33,7 +35,7 @@ public class PlayerMovement : MonoBehaviour
         playerDirectionHorizontal = Input.GetAxis("Horizontal");
         playerDirectionVertical = Input.GetAxis("Vertical");
         playerRigid.velocity=new Vector2 (playerDirectionHorizontal * playerVelocity, playerDirectionVertical * playerVelocity);//setting velocity
-        transform.position = new Vector2(Mathf.Clamp(transform.position.x, -8.5f, 8.5f), Mathf.Clamp(transform.position.y, -4.5f, 4.5f));//limit movement
+        transform.position = new Vector2(Mathf.Clamp(transform.position.x, -8.5f, 8.5f), Mathf.Clamp(transform.position.y, -4.3f, 4.3f));//limit movement
     }
     void Health()
     {
@@ -41,6 +43,12 @@ public class PlayerMovement : MonoBehaviour
         {
             playerHealth -= decayTime*Time.deltaTime;//health decay logic
         }
+    }   
+    void Dash()
+    {
+
     }
+
+  
 
 }

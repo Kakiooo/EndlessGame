@@ -15,7 +15,7 @@ public class UIManager : MonoBehaviour
     }
     void Start()
     {
-        ui_healthBar.DOSizeDelta(new Vector2(0, 25), 100/ refToPlayer.decayTime, false).SetEase(Ease.Linear);//bind health bar UI with player health
+        ui_healthBar.DOSizeDelta(new Vector2(0, 25), 100/ refToPlayer.decayTime, false).SetEase(Ease.Linear);//connect health bar UI to player health
     }
 
     // Update is called once per frame

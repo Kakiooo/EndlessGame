@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     
     private void Awake()
     {
-        instance = this;//bind with this script
+        instance = this;//connect to this script
         gameFlow = GameFlow.gameStart;
     }
 
