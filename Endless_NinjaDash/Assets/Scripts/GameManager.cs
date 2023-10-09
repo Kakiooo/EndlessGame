@@ -6,7 +6,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;//creating singleton
-    public enum GameFlow {gameStart,gamePause,gameEnd}//setting game flow
+    public enum GameFlow {gameStart,gamePause,dashMode,gameEnd}//setting game flow
     public GameFlow gameFlow;
     public Camera refToCM;
     
