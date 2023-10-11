@@ -1,4 +1,4 @@
-using DG.Tweening;
+
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -8,9 +8,9 @@ using UnityEngine.UIElements;
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D playerRigid;
-    private GameObject indicatorDash,mouse;
-    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashSpeed,dashCoolDown,dashDuration,dashCharging;
-    public float playerHealth, decayTime;
+    private GameObject dashDirection;
+    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashSpeed,dashCoolDown,dashDuration;
+    public float playerHealth, decayTime,dashCharging;
     [SerializeField] private bool isDashing, canDash,isDashCharged;
 
     private void Awake()
@@ -24,8 +24,7 @@ public class PlayerMovement : MonoBehaviour
         dashDuration = 0.25f;
         canDash = true;
         dashCharging = 2;
-        mouse = GameObject.Find("Mouse");
-        indicatorDash = GameObject.Find("DashIndicator");
+        dashDirection = GameObject.Find("direction");
 
 
     }
@@ -34,41 +33,48 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
-
-    void Update()
+    private void FixedUpdate()
     {
-        mouse.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0, 0, 10);
-
         if (isDashing)
         {
             return;
         }
-        DontDestroyOnLoad(gameObject);
-        Movement();//playermovement
-        Health();     
-        if (Input.GetKey(KeyCode.Mouse0))
+        if (GameManager.instance.gameFlow == GameManager.GameFlow.gameStart)
         {
-            playerRigid.velocity = new Vector2(0, 0);//when player dashing,movement is disfunctional
-            dashCharging -= Time.deltaTime;//hold the mouse and wait for dash
-            if (dashCharging < 0)
+                      
+            DontDestroyOnLoad(gameObject);            
+            Movement();//playermovement
+            Health();
+            if (!Input.GetKey(KeyCode.Mouse0))
             {
-                isDashCharged = true; 
-                dashCharging = 2;//reset value
-            }          
+                dashCharging = 2;
+            }
+            if (Input.GetKey(KeyCode.Mouse0))
+            {
+                playerRigid.velocity = new Vector2(0, 0);//when player dashing,movement is disfunctional
+                dashCharging -= Time.deltaTime;//hold the mouse and wait for dash
+                if (dashCharging < 0)
+                {
+                    isDashCharged = true;
+                    dashCharging = 2;//reset value
+                }
+            }
+            if (canDash && isDashCharged)
+            {
+                StartCoroutine(Dash());
+            }
+            if (playerHealth <= 0)
+            {
+                //GameManager.instance.gameFlow = GameManager.GameFlow.gameEnd;
+            }
         }
-        if (canDash&&isDashCharged)
-        {
-            StartCoroutine(Dash());
-        }
-
+     
         print(playerRigid.velocity.magnitude);
-        DirectionIndicator();
-
     }
 
     void Movement()
     {
-
+       
         playerDirectionHorizontal = Input.GetAxis("Horizontal");
         playerDirectionVertical = Input.GetAxis("Vertical");
         playerRigid.velocity=new Vector2 (playerDirectionHorizontal * playerVelocity, playerDirectionVertical * playerVelocity);//setting velocity
@@ -83,17 +89,12 @@ public class PlayerMovement : MonoBehaviour
         }
     }   
 
-    private void DirectionIndicator()
-    {
-        float degree= Mathf.Rad2Deg*Mathf.Atan2(mouse.transform.position.y - indicatorDash.transform.position.y, mouse.transform.position.x - indicatorDash.transform.position.x);
-        //indicatorDash.transform.up = mouse.transform.position - indicatorDash.transform.position;
-        indicatorDash.transform.RotateAround(transform.position, Vector3.forward, 5);
-        //indicatorDash.transform.rotation = Quaternion.AngleAxis(degree, Vector3.forward);
-        print(degree);
-    }
+
 
     private IEnumerator Dash()
     {
+        Color cl = dashDirection.GetComponent<SpriteRenderer>().color;
+        dashDirection.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0);//hide dash direction sign when dashing 
         canDash = false;
         isDashing = true;
         isDashCharged = false;//reset clicking time
@@ -102,7 +103,9 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(dashCoolDown);
         canDash = true;
-       
+        dashDirection.GetComponent<SpriteRenderer>().color = cl;//reset dash direction sign after dashing
+
+
     }
   
 

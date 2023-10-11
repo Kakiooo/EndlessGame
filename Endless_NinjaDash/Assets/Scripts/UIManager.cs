@@ -2,25 +2,48 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using Cinemachine;
 
 public class UIManager : MonoBehaviour
 {
     private RectTransform ui_healthBar;
-    private PlayerMovement refToPlayer;
+    private PlayerMovement refToPlayerScript;
+    private GameObject indicatorDash, mouse, direction,refToPlayer;
+
 
     private void Awake()
     {
         ui_healthBar = GameObject.Find("HealthBar").GetComponent<RectTransform>();
-        refToPlayer = GameObject.Find("Player").GetComponent<PlayerMovement>();
+        refToPlayerScript = GameObject.Find("Player").GetComponent<PlayerMovement>();
+        mouse = GameObject.Find("Mouse");
+        indicatorDash = GameObject.Find("DashIndicator");
+        direction = GameObject.Find("direction");
+        refToPlayer = GameObject.Find("Player");
+
     }
     void Start()
     {
-        ui_healthBar.DOSizeDelta(new Vector2(0, 25), 100/ refToPlayer.decayTime, false).SetEase(Ease.Linear);//connect health bar UI to player health
+        ui_healthBar.DOSizeDelta(new Vector2(0, 25), 100/ refToPlayerScript.decayTime, false).SetEase(Ease.Linear);//connect health bar UI to player health
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(GameManager.instance.gameFlow==GameManager.GameFlow.gameStart)
+        {
+            mouse.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0, 0, 10);
+            indicatorDash.transform.position = refToPlayer.transform.position; //dash direction indicator follow the player
+            DirectionIndicator();
+        }
     }
+
+    private void DirectionIndicator()
+    {
+        float degree = Mathf.Rad2Deg * Mathf.Atan2(mouse.transform.position.y - indicatorDash.transform.position.y, mouse.transform.position.x - indicatorDash.transform.position.x);
+        //indicatorDash.transform.up = mouse.transform.position - indicatorDash.transform.position;
+        indicatorDash.transform.localRotation = Quaternion.AngleAxis(degree, Vector3.forward);
+        print(degree);
+    }
+
+
 }
