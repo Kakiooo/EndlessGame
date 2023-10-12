@@ -483,6 +483,7 @@ MonoBehaviour:
   isDashing: 0
   canDash: 0
   isDashCharged: 0
+  isDuringCharging: 0
 --- !u!212 &555350165
 SpriteRenderer:
   m_ObjectHideFlags: 0

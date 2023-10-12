@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
     private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashPower, dashCoolDown,dashDuration;
     public float playerHealth, decayTime,dashCharging;
     [SerializeField] private bool isDashing, canDash,isDashCharged;
+    public bool isDuringCharging;
 
     private void Awake()
     {
@@ -50,9 +51,11 @@ public class PlayerMovement : MonoBehaviour
             if (!Input.GetKey(KeyCode.Mouse0))
             {
                 dashCharging = 2;
+                isDuringCharging = false;//use to determine if the camera need to zoom
             }
             if (Input.GetKey(KeyCode.Mouse0))
             {
+                isDuringCharging = true;//use to determine if the camera need to zoom
                 playerRigid.velocity = new Vector2(0, 0);//when player dashing,movement is disfunctional
                 dashCharging -= Time.deltaTime;//hold the mouse and wait for dash
                 if (dashCharging < 0)
