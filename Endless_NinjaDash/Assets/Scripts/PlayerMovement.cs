@@ -8,18 +8,19 @@ using UnityEngine.UIElements;
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D playerRigid;
-    private GameObject dashDirection;
-    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashSpeed,dashCoolDown,dashDuration;
+    private GameObject dashDirection,refToMouse;
+    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashPower, dashCoolDown,dashDuration;
     public float playerHealth, decayTime,dashCharging;
     [SerializeField] private bool isDashing, canDash,isDashCharged;
 
     private void Awake()
     {
+        refToMouse = GameObject.Find("Mouse");
         playerRigid = GetComponent<Rigidbody2D>();
         playerVelocity = 10f;
         playerHealth = 100;
         decayTime = 4;
-        dashSpeed = 20;
+        dashPower = 20;
         dashCoolDown = 1;
         dashDuration = 0.25f;
         canDash = true;
@@ -35,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        refToMouse.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0, 0, 10);
         if (isDashing)
         {
             return;
@@ -93,12 +95,13 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator Dash()
     {
+        Vector3 direction = (refToMouse.transform.position - transform.position).normalized;
         Color cl = dashDirection.GetComponent<SpriteRenderer>().color;
         dashDirection.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0);//hide dash direction sign when dashing 
         canDash = false;
         isDashing = true;
         isDashCharged = false;//reset clicking time
-        playerRigid.velocity=new Vector2(1 * dashSpeed,playerDirectionVertical*dashSpeed);
+        playerRigid.AddForce(direction * dashPower, ForceMode2D.Impulse);
         yield return new WaitForSeconds(dashDuration);
         isDashing = false;
         yield return new WaitForSeconds(dashCoolDown);

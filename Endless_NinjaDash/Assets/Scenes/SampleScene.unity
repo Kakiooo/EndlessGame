@@ -152,8 +152,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_Father: {fileID: 1098082300}
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!60 &462549771
 PolygonCollider2D:
@@ -200,7 +200,7 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: 19.013231, y: 11.031008}
-      - {x: -18.948423, y: 11.016919}
+      - {x: -18.948423, y: 10.977178}
       - {x: -18.92598, y: -10.972093}
       - {x: 19.043682, y: -10.998395}
       - {x: 19.011692, y: -10.94603}
@@ -243,7 +243,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0.9433962, g: 0.6082332, b: 0.21804914, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -268,7 +268,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -893,7 +893,7 @@ Transform:
   m_GameObject: {fileID: 756920209}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 16, y: 8, z: 1}
+  m_LocalScale: {x: 20, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 555350166}
@@ -1498,8 +1498,9 @@ Transform:
   - {fileID: 1664763755}
   - {fileID: 580888314}
   - {fileID: 1072887778}
+  - {fileID: 462549770}
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1124641685
 GameObject:
@@ -2122,7 +2123,7 @@ MonoBehaviour:
   m_Follow: {fileID: 555350166}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 6
+    OrthographicSize: 8
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
