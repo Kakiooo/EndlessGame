@@ -83,7 +83,6 @@ public class PlayerMovement : MonoBehaviour
         playerDirectionHorizontal = Input.GetAxis("Horizontal");
         playerDirectionVertical = Input.GetAxis("Vertical");
         playerRigid.velocity=new Vector2 (playerDirectionHorizontal * playerVelocity, playerDirectionVertical * playerVelocity);//setting velocity
-        //transform.position = new Vector2(Mathf.Clamp(transform.position.x, -8.5f, 8.5f), Mathf.Clamp(transform.position.y, -4.3f, 4.3f));//limit movement
 
     }
     void Health()
