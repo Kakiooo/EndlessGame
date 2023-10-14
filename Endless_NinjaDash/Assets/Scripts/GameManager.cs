@@ -12,7 +12,6 @@ public class GameManager : MonoBehaviour
     private PlayerMovement refToPlayerScript;
     public Camera refToCM;
     private CinemachineVirtualCamera refToVirtual;
-    private float zoomingTime;
     
     private void Awake()
     {
@@ -21,7 +20,6 @@ public class GameManager : MonoBehaviour
         refToCM=GameObject.Find("Main Camera").GetComponent<Camera>();
         refToVirtual = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
         refToPlayerScript = GameObject.Find("Player").GetComponent<PlayerMovement>();
-        zoomingTime = 2;
     }
 
     void Start()

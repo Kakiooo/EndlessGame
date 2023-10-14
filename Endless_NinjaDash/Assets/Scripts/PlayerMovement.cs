@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     public float playerHealth, decayTime,dashCharging;
     [SerializeField] private bool isDashing, canDash,isDashCharged;
     public bool isDuringCharging;
+    private EnemyLogic refToEnemy;
 
     private void Awake()
     {
@@ -22,11 +23,12 @@ public class PlayerMovement : MonoBehaviour
         playerHealth = 100;
         decayTime = 4;
         dashPower = 20;
-        dashCoolDown = 1;
+        dashCoolDown = 3;
         dashDuration = 0.25f;
         canDash = true;
         dashCharging = 2;
         dashDirection = GameObject.Find("direction");
+        refToEnemy = GameObject.Find("Enemy").GetComponent<EnemyLogic>();
 
 
     }
@@ -53,18 +55,20 @@ public class PlayerMovement : MonoBehaviour
                 dashCharging = 2;
                 isDuringCharging = false;//use to determine if the camera need to zoom
             }
-            if (Input.GetKey(KeyCode.Mouse0))
+            if (Input.GetKey(KeyCode.Mouse0)&&canDash)
             {
                 isDuringCharging = true;//use to determine if the camera need to zoom
                 playerRigid.velocity = new Vector2(0, 0);//when player dashing,movement is disfunctional
                 dashCharging -= Time.deltaTime;//hold the mouse and wait for dash
+                refToEnemy.speed = refToEnemy.decaySpeed;
                 if (dashCharging < 0)
                 {
                     isDashCharged = true;
                     dashCharging = 2;//reset value
+                    refToEnemy.speed = 5;
                 }
             }
-            if (canDash && isDashCharged)
+            if (isDashCharged)
             {
                 StartCoroutine(Dash());
             }
@@ -109,7 +113,6 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(dashCoolDown);
         canDash = true;
         dashDirection.GetComponent<SpriteRenderer>().color = cl;//reset dash direction sign after dashing
-
 
     }
   
