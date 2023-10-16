@@ -60,12 +60,12 @@ public class PlayerMovement : MonoBehaviour
                 isDuringCharging = true;//use to determine if the camera need to zoom
                 playerRigid.velocity = new Vector2(0, 0);//when player dashing,movement is disfunctional
                 dashCharging -= Time.deltaTime;//hold the mouse and wait for dash
-                refToEnemy.speed = refToEnemy.decaySpeed;
+                refToEnemy.speed = refToEnemy.decaySpeed;//making bullet time effect
                 if (dashCharging < 0)
                 {
                     isDashCharged = true;
                     dashCharging = 2;//reset value
-                    refToEnemy.speed = 5;
+                    refToEnemy.speed = 4;//reset the bullet effect back to normal
                 }
             }
             if (isDashCharged)
