@@ -18,19 +18,20 @@ public class EnemyLogic : MonoBehaviour
     private Vector2 enemyPosition;
     private void Awake()
     {
-        refToPlayer = GameObject.Find("Player");
-        circularCenter = transform.parent.GetComponent<Transform>();
+        refToPlayer = GameObject.Find("Player");     
         speed = 4;
         decaySpeed = 2;
         rotateAngleSpeed = 15;
         curveMoveSpeed = 0.5f;
         isMoveInCurve = true;
+        if(transform.parent != null) { circularCenter = transform.parent.GetComponent<Transform>(); }
+       
     }
     void Start()
     {
         movementList.Add(MoveToPlayer);
         movementList.Add(MoveInCircle);
-       enemyMovementFunction += movementList[1];
+        enemyMovementFunction += movementList[1];
      
         
     }
@@ -45,7 +46,11 @@ public class EnemyLogic : MonoBehaviour
         }
         if (CompareTag("CircularEnemy"))
         {
-            enemyMovementFunction();
+            MoveInCircle();
+        }
+        if (CompareTag("DirectEnemy"))
+        {
+            MoveToPlayer();
         }
     }
 
