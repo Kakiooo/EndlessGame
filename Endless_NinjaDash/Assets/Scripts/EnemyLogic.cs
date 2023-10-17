@@ -8,7 +8,8 @@ public class EnemyLogic : MonoBehaviour
     [SerializeField] private delegate void enemyMovement();
     [SerializeField] private static event enemyMovement enemyMovementFunction;
     [SerializeField] List<enemyMovement>movementList = new List<enemyMovement>();
-    private GameObject refToPlayer,wayPoint;
+    private GameObject refToPlayer;
+    private Transform circularCenter;
     public float speed,decaySpeed,rotateAngleSpeed;
     [SerializeField] private Transform[] routes;//route of bezier curve
     [SerializeField] private int routeIndex;//how many routes need to go
@@ -18,10 +19,10 @@ public class EnemyLogic : MonoBehaviour
     private void Awake()
     {
         refToPlayer = GameObject.Find("Player");
-        wayPoint = GameObject.Find("CircularCenter");
+        circularCenter = transform.parent.GetComponent<Transform>();
         speed = 4;
         decaySpeed = 2;
-        rotateAngleSpeed = 1;
+        rotateAngleSpeed = 15;
         curveMoveSpeed = 0.5f;
         isMoveInCurve = true;
     }
@@ -37,10 +38,14 @@ public class EnemyLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        enemyMovementFunction();
+
         if (isMoveInCurve&&CompareTag("BezierCurveEnemy"))
         {
             StartCoroutine(FollowBezierCurve(routeIndex));
+        }
+        if (CompareTag("CircularEnemy"))
+        {
+            enemyMovementFunction();
         }
     }
 
@@ -50,8 +55,8 @@ public class EnemyLogic : MonoBehaviour
     }
 
     void MoveInCircle()
-    {       
-        wayPoint.transform.Rotate(Vector3.forward,rotateAngleSpeed);      
+    {
+        circularCenter.transform.Rotate(Vector3.forward,rotateAngleSpeed*Time.deltaTime);      
     }
 
     private IEnumerator FollowBezierCurve(int routeNumber)//make enemy move along bezier curve
@@ -76,7 +81,7 @@ public class EnemyLogic : MonoBehaviour
 
         t_InterpolatePosition = 0;//reset position of interpolating point
         routeIndex++;//change to another bezier curve route
-        if (routeIndex > routes.Length - 1) routeIndex = 0;//reset the route back to 0 to loop the coroutine
+        if (CompareTag("BezierCurveEnemy")&&routeIndex > routes.Length - 1) routeIndex = 0;//reset the route back to 0 to loop the coroutine
         
         isMoveInCurve = true;//loop the coroutine
         
