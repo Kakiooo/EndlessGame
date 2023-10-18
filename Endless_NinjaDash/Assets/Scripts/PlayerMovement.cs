@@ -11,8 +11,8 @@ public class PlayerMovement : MonoBehaviour
     private GameObject dashDirection,refToMouse;
     private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashPower, dashCoolDown,dashDuration;
     public float playerHealth, decayTime,dashCharging;
-    [SerializeField] private bool isDashing, canDash,isDashCharged;
-    public bool isDuringCharging;
+    [SerializeField] private bool canDash,isDashCharged;
+    public bool isDuringCharging, isDashing;
     private EnemyLogic refToEnemy;
 
     private void Awake()
@@ -97,8 +97,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }   
 
-
-
     private IEnumerator Dash()
     {
         Vector3 direction = (refToMouse.transform.position - transform.position).normalized;
@@ -115,6 +113,6 @@ public class PlayerMovement : MonoBehaviour
         dashDirection.GetComponent<SpriteRenderer>().color = cl;//reset dash direction sign after dashing
 
     }
-  
+
 
 }

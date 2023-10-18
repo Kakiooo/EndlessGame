@@ -11,6 +11,7 @@ public class EnemyLogic : MonoBehaviour
     private GameObject refToPlayer;
     private Transform circularCenter;
     public float speed,decaySpeed,rotateAngleSpeed;
+    private UIManager refToUiManager;
     [SerializeField] private Transform[] routes;//route of bezier curve
     [SerializeField] private int routeIndex;//how many routes need to go
     private bool isMoveInCurve;
@@ -18,7 +19,8 @@ public class EnemyLogic : MonoBehaviour
     private Vector2 enemyPosition;
     private void Awake()
     {
-        refToPlayer = GameObject.Find("Player");     
+        refToPlayer = GameObject.Find("Player");
+        refToUiManager = GameObject.Find("GameUI").GetComponent<UIManager>();   
         speed = 4;
         decaySpeed = 2;
         rotateAngleSpeed = 15;
@@ -88,8 +90,28 @@ public class EnemyLogic : MonoBehaviour
         routeIndex++;//change to another bezier curve route
         if (CompareTag("BezierCurveEnemy")&&routeIndex > routes.Length - 1) routeIndex = 0;//reset the route back to 0 to loop the coroutine
         
-        isMoveInCurve = true;//loop the coroutine
-        
+        isMoveInCurve = true;//loop the coroutine      
 
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true&&collision.gameObject.tag=="Player")
+        {
+            Destroy(gameObject);
+        }
+    }
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true && collision.gameObject.tag == "Player")
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        refToPlayer.GetComponent<PlayerMovement>().playerHealth += 10;
+        refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);
     }
 }

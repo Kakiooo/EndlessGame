@@ -6,7 +6,7 @@ using Cinemachine;
 
 public class UIManager : MonoBehaviour
 {
-    private RectTransform ui_healthBar;
+    public RectTransform ui_healthBar;
     private PlayerMovement refToPlayerScript;
     private GameObject indicatorDash, mouse, direction,refToPlayer;
     private CinemachineVirtualCamera refToVirtualCM;
@@ -24,18 +24,20 @@ public class UIManager : MonoBehaviour
     }
     void Start()
     {
-        ui_healthBar.DOSizeDelta(new Vector2(0, 25), 100/ refToPlayerScript.decayTime, false).SetEase(Ease.Linear);//connect health bar UI to player health
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(GameManager.instance.gameFlow==GameManager.GameFlow.gameStart)
+       
+        if (GameManager.instance.gameFlow==GameManager.GameFlow.gameStart)
         {
             mouse.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0, 0, 10);
             indicatorDash.transform.position = refToPlayer.transform.position; //dash direction indicator follow the player
             DirectionIndicator();
             cameraEffect();
+            ui_healthBar.sizeDelta -= new Vector2(refToPlayerScript.decayTime*4, 0)*Time.deltaTime;
         }
     }
 

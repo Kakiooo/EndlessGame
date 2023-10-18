@@ -6,6 +6,7 @@ TagManager:
   tags:
   - BezierCurveEnemy
   - CircularEnemy
+  - DirectEnemy
   layers:
   - Default
   - TransparentFX
