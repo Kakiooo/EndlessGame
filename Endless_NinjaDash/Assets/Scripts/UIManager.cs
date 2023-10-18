@@ -37,7 +37,7 @@ public class UIManager : MonoBehaviour
             indicatorDash.transform.position = refToPlayer.transform.position; //dash direction indicator follow the player
             DirectionIndicator();
             cameraEffect();
-            ui_healthBar.sizeDelta -= new Vector2(refToPlayerScript.decayTime*4, 0)*Time.deltaTime;
+            ui_healthBar.sizeDelta -= new Vector2(refToPlayerScript.decayTime*4, 0)*Time.deltaTime;//scalling health bar according to players health decay and time
         }
     }
 

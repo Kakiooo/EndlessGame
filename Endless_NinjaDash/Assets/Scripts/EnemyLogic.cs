@@ -94,24 +94,34 @@ public class EnemyLogic : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)//when enemy enter player
     {
-        if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true&&collision.gameObject.tag=="Player")
+        if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true&&collision.gameObject.tag=="Player")//condintion for player to eliminate enemies
         {
             Destroy(gameObject);
         }
+        else if(collision.gameObject.tag == "Player")
+        {
+            refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 10;
+            refToUiManager.ui_healthBar.sizeDelta -= new Vector2(40, 0)*Time.deltaTime;//enemy damage to player
+        }
     }
-    private void OnTriggerStay2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)//when enemy is over player
     {
-        if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true && collision.gameObject.tag == "Player")
+        if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true && collision.gameObject.tag == "Player")//condintion for player to eliminate enemies
         {
             Destroy(gameObject);
+        }
+        else if (collision.gameObject.tag == "Player")
+        {
+            refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 10;
+            refToUiManager.ui_healthBar.sizeDelta -= new Vector2(40, 0)*Time.deltaTime;//enemy damage to player
         }
     }
 
     private void OnDestroy()
     {
         refToPlayer.GetComponent<PlayerMovement>().playerHealth += 10;
-        refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);
+        refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);//restore player health bar when enemy is eliminated
     }
 }
