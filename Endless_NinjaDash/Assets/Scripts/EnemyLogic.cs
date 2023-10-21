@@ -59,7 +59,7 @@ public class EnemyLogic : MonoBehaviour
             MoveToPlayer();
         }
 
-        CameraShakingLogic(); 
+        CameraShakingLogic(); //when enemies are eliminated,camera shaking
 
     }
 
@@ -153,5 +153,6 @@ public class EnemyLogic : MonoBehaviour
         refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);//restore player health bar when enemy is eliminated      
         enemyIsEliminated=false;
         shakeTimer = 0.5f;
+        refToUiManager.num_eliminated += 1;
     }
 }

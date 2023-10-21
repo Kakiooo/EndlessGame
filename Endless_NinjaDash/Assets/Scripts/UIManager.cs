@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Cinemachine;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI refToTextMesh;
     public RectTransform ui_healthBar;
     private PlayerMovement refToPlayerScript;
     private GameObject indicatorDash, mouse, direction,refToPlayer;
     private CinemachineVirtualCamera refToVirtualCM;
     public float duration, totalTime,shakeIntensity=2;
+    public int num_eliminated;
     public bool isEnemyDestroied;
     [SerializeField] CinemachineBasicMultiChannelPerlin shakeProperties;
 
@@ -26,6 +29,7 @@ public class UIManager : MonoBehaviour
         refToVirtualCM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
         shakeProperties = refToVirtualCM.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         totalTime = 3;
+        refToTextMesh = GameObject.Find("Text_Enemy").GetComponent<TextMeshProUGUI>();
         //duration = totalTime;
     }
     void Start()
@@ -39,6 +43,7 @@ public class UIManager : MonoBehaviour
        
         if (GameManager.instance.gameFlow==GameManager.GameFlow.gameStart)
         {
+            refToTextMesh.text = ""+num_eliminated;
             mouse.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0, 0, 10);
             indicatorDash.transform.position = refToPlayer.transform.position; //dash direction indicator follow the player
             DirectionIndicator();
@@ -61,9 +66,9 @@ public class UIManager : MonoBehaviour
         if (refToPlayerScript.isDuringCharging)//when dashing...
         {
             refToVirtualCM.m_Lens.OrthographicSize-= zoomInTime * Time.deltaTime;//zoom in virtual camera when player is dashing
-            if (refToVirtualCM.m_Lens.OrthographicSize <= 5)
+            if (refToVirtualCM.m_Lens.OrthographicSize <= 6)
             {
-                refToVirtualCM.m_Lens.OrthographicSize=5;//when zoom in camera limit the size of virtual camera
+                refToVirtualCM.m_Lens.OrthographicSize=6;//when zoom in camera limit the size of virtual camera
             }
         }
         else //when is not dashing...
