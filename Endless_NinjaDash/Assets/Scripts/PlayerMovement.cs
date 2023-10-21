@@ -11,13 +11,14 @@ public class PlayerMovement : MonoBehaviour
     private GameObject dashDirection,refToMouse;
     private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashPower, dashCoolDown,dashDuration;
     public float playerHealth, decayTime,dashCharging;
-    [SerializeField] private bool canDash,isDashCharged;
-    public bool isDuringCharging, isDashing;
-    private EnemyLogic refToEnemy;
+    [SerializeField] private bool isDashCharged;
+    public bool isDuringCharging, isDashing, canDash;
+    private UIManager refToUIManager;
 
     private void Awake()
     {
         refToMouse = GameObject.Find("Mouse");
+        refToUIManager = GameObject.Find("GameUI").GetComponent<UIManager>();   
         playerRigid = GetComponent<Rigidbody2D>();
         playerVelocity = 10f;
         playerHealth = 100;
@@ -28,7 +29,6 @@ public class PlayerMovement : MonoBehaviour
         canDash = true;
         dashCharging = 2;
         dashDirection = GameObject.Find("direction");
-        refToEnemy = GameObject.Find("Enemy").GetComponent<EnemyLogic>();
 
 
     }
@@ -60,12 +60,10 @@ public class PlayerMovement : MonoBehaviour
                 isDuringCharging = true;//use to determine if the camera need to zoom
                 playerRigid.velocity = new Vector2(0, 0);//when player dashing,movement is disfunctional
                 dashCharging -= Time.deltaTime;//hold the mouse and wait for dash
-                refToEnemy.speed = refToEnemy.decaySpeed;//making bullet time effect
                 if (dashCharging < 0)
                 {
                     isDashCharged = true;
                     dashCharging = 2;//reset value
-                    refToEnemy.speed = 4;//reset the bullet effect back to normal
                 }
             }
             if (isDashCharged)
@@ -78,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
      
-        print(playerRigid.velocity.magnitude);
+       
     }
 
     void Movement()

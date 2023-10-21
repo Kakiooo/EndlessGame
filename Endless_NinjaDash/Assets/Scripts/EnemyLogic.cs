@@ -10,54 +10,67 @@ public class EnemyLogic : MonoBehaviour
     [SerializeField] List<enemyMovement>movementList = new List<enemyMovement>();
     private GameObject refToPlayer;
     private Transform circularCenter;
-    public float speed,decaySpeed,rotateAngleSpeed;
+    private float speed,decaySpeed,rotateAngleSpeed,originalSpeed,decayRotateAngleSpeed,originalAngleSpeed;
     private UIManager refToUiManager;
     [SerializeField] private Transform[] routes;//route of bezier curve
     [SerializeField] private int routeIndex;//how many routes need to go
     private bool isMoveInCurve;
-    private float curveMoveSpeed, t_InterpolatePosition;
+    [SerializeField] private bool enemyIsEliminated,notMoving;
+    private float curveMoveSpeed, t_InterpolatePosition,shakeTimer;
     private Vector2 enemyPosition;
     private void Awake()
     {
         refToPlayer = GameObject.Find("Player");
-        refToUiManager = GameObject.Find("GameUI").GetComponent<UIManager>();   
+        refToUiManager = GameObject.Find("GameUI").GetComponent<UIManager>();
         speed = 4;
+        originalSpeed = speed;       
         decaySpeed = 2;
         rotateAngleSpeed = 15;
         curveMoveSpeed = 0.5f;
         isMoveInCurve = true;
         if(transform.parent != null) { circularCenter = transform.parent.GetComponent<Transform>(); }
-       
+        shakeTimer=0.5f;
+
+
     }
     void Start()
     {
         movementList.Add(MoveToPlayer);
         movementList.Add(MoveInCircle);
         enemyMovementFunction += movementList[1];
-     
-        
+
+        refToUiManager.CameraStopShake();
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        print(enemyIsEliminated);
         if (isMoveInCurve&&CompareTag("BezierCurveEnemy"))
         {
             StartCoroutine(FollowBezierCurve(routeIndex));
         }
-        if (CompareTag("CircularEnemy"))
+        if (CompareTag("CircularEnemy")&&!notMoving)
         {
             MoveInCircle();
         }
-        if (CompareTag("DirectEnemy"))
+        if (CompareTag("DirectEnemy")&&!notMoving)
         {
             MoveToPlayer();
         }
+
+        CameraShakingLogic(); 
+
     }
 
     void MoveToPlayer()
     {
+        if (Input.GetMouseButton(0) && refToPlayer.GetComponent<PlayerMovement>().canDash)
+        {
+            speed = decaySpeed;//when dashing enemy moves slower
+        }
+        else speed = originalSpeed;//reset to normal speed when player is not dashing
+
         transform.position = Vector2.MoveTowards(transform.position, refToPlayer.transform.position, speed * Time.deltaTime);
     }
 
@@ -98,7 +111,7 @@ public class EnemyLogic : MonoBehaviour
     {
         if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true&&collision.gameObject.tag=="Player")//condintion for player to eliminate enemies
         {
-            Destroy(gameObject);
+            enemyIsEliminated = true;
         }
         else if(collision.gameObject.tag == "Player")
         {
@@ -110,7 +123,7 @@ public class EnemyLogic : MonoBehaviour
     {
         if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true && collision.gameObject.tag == "Player")//condintion for player to eliminate enemies
         {
-            Destroy(gameObject);
+            enemyIsEliminated=true;        
         }
         else if (collision.gameObject.tag == "Player")
         {
@@ -119,9 +132,26 @@ public class EnemyLogic : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    private void CameraShakingLogic()
     {
+
+        if (shakeTimer > 0 && enemyIsEliminated)
+        {
+            shakeTimer -= Time.deltaTime;
+            refToUiManager.CameraShake();
+        }
+        else if (shakeTimer < 0)
+        {
+            refToUiManager.CameraStopShake();
+            notMoving = true;
+            Destroy(gameObject);
+        }
+    }
+    private void OnDestroy()
+    {     
         refToPlayer.GetComponent<PlayerMovement>().playerHealth += 10;
-        refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);//restore player health bar when enemy is eliminated
+        refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);//restore player health bar when enemy is eliminated      
+        enemyIsEliminated=false;
+        shakeTimer = 0.5f;
     }
 }

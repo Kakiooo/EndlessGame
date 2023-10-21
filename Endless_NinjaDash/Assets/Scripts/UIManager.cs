@@ -10,6 +10,9 @@ public class UIManager : MonoBehaviour
     private PlayerMovement refToPlayerScript;
     private GameObject indicatorDash, mouse, direction,refToPlayer;
     private CinemachineVirtualCamera refToVirtualCM;
+    public float duration, totalTime,shakeIntensity=2;
+    public bool isEnemyDestroied;
+    [SerializeField] CinemachineBasicMultiChannelPerlin shakeProperties;
 
 
     private void Awake()
@@ -21,6 +24,9 @@ public class UIManager : MonoBehaviour
         direction = GameObject.Find("direction");
         refToPlayer = GameObject.Find("Player");
         refToVirtualCM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
+        shakeProperties = refToVirtualCM.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        totalTime = 3;
+        //duration = totalTime;
     }
     void Start()
     {
@@ -36,7 +42,7 @@ public class UIManager : MonoBehaviour
             mouse.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0, 0, 10);
             indicatorDash.transform.position = refToPlayer.transform.position; //dash direction indicator follow the player
             DirectionIndicator();
-            cameraEffect();
+            CameraEffect();
             ui_healthBar.sizeDelta -= new Vector2(refToPlayerScript.decayTime*4, 0)*Time.deltaTime;//scalling health bar according to players health decay and time
         }
     }
@@ -46,10 +52,9 @@ public class UIManager : MonoBehaviour
         float degree = Mathf.Rad2Deg * Mathf.Atan2(mouse.transform.position.y - indicatorDash.transform.position.y, mouse.transform.position.x - indicatorDash.transform.position.x);
         //indicatorDash.transform.up = mouse.transform.position - indicatorDash.transform.position;
         indicatorDash.transform.localRotation = Quaternion.AngleAxis(degree, Vector3.forward);
-        print(degree);
     }
 
-    private void cameraEffect()
+    private void CameraEffect()
     {
         float zoomInTime = 2;
         float zoomOutTime = 4f;
@@ -70,6 +75,18 @@ public class UIManager : MonoBehaviour
             }
         }
 
+    }
+
+    public void CameraShake()
+    {
+        
+        shakeProperties.m_FrequencyGain = 1;
+        shakeProperties.m_AmplitudeGain = 3;
+    }
+    public void CameraStopShake()
+    {
+        shakeProperties.m_AmplitudeGain = 0;
+        print("Works");
     }
 
 
