@@ -24,7 +24,7 @@ public class PlayerMovement : MonoBehaviour
         playerHealth = 100;
         decayTime = 4;
         dashPower = 20;
-        dashCoolDown = 3;
+        dashCoolDown = 1;
         dashDuration = 0.25f;
         canDash = true;
         dashCharging = 2;
@@ -46,10 +46,10 @@ public class PlayerMovement : MonoBehaviour
         }
         if (GameManager.instance.gameFlow == GameManager.GameFlow.gameStart)
         {
-                      
+
+            playerHealth -= decayTime * Time.deltaTime;//health decay logic
             DontDestroyOnLoad(gameObject);            
             Movement();//playermovement
-            Health();
             if (!Input.GetKey(KeyCode.Mouse0))
             {
                 dashCharging = 2;
@@ -87,13 +87,6 @@ public class PlayerMovement : MonoBehaviour
         playerRigid.velocity=new Vector2 (playerDirectionHorizontal * playerVelocity, playerDirectionVertical * playerVelocity);//setting velocity
 
     }
-    void Health()
-    {
-       if (GameManager.instance.gameFlow == GameManager.GameFlow.gameStart)
-        {
-            playerHealth -= decayTime*Time.deltaTime;//health decay logic
-        }
-    }   
 
     private IEnumerator Dash()
     {

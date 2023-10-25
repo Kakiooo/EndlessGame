@@ -1,6 +1,8 @@
+using Microsoft.Unity.VisualStudio.Editor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyLogic : MonoBehaviour
 {
@@ -16,21 +18,39 @@ public class EnemyLogic : MonoBehaviour
     [SerializeField] private int routeIndex;//how many routes need to go
     private bool isMoveInCurve;
     [SerializeField] private bool enemyIsEliminated,notMoving;
-    private float curveMoveSpeed, t_InterpolatePosition,shakeTimer;
+    private float curveMoveSpeed, t_InterpolatePosition,shakeTimer,decayCurveSpeed,originalCurveSpeed;
     private Vector2 enemyPosition;
+    string tagName;
     private void Awake()
     {
         refToPlayer = GameObject.Find("Player");
         refToUiManager = GameObject.Find("GameUI").GetComponent<UIManager>();
         speed = 4;
         originalSpeed = speed;       
-        decaySpeed = 2;
-        rotateAngleSpeed = 15;
+        decaySpeed = speed/2;
+        rotateAngleSpeed = 90;
+        originalAngleSpeed = rotateAngleSpeed;
+        decayRotateAngleSpeed = rotateAngleSpeed/3;
         curveMoveSpeed = 0.5f;
+        decayCurveSpeed = curveMoveSpeed / 3;
+        originalCurveSpeed = curveMoveSpeed;
         isMoveInCurve = true;
-        if(transform.parent != null) { circularCenter = transform.parent.GetComponent<Transform>(); }
-        shakeTimer=0.5f;
-
+        shakeTimer = 0.5f;
+        tagName = tag;
+        switch (tagName)
+        {
+            case "CircularEnemy":
+                circularCenter = transform.parent.GetComponent<Transform>();
+                break;
+            case "BezierCurveEnemy":
+                routes[0] = GameObject.Find("RouteBezier1").GetComponent<Transform>();
+                routes[1] = GameObject.Find("RouteBezier2").GetComponent<Transform>();
+                routes[2] = GameObject.Find("RouteBezier3").GetComponent<Transform>();
+                routes[3] = GameObject.Find("RouteBezier4").GetComponent<Transform>();
+                break;
+            case "DirectEnemy":
+                break;
+        }//make enemy match the type of themselves with accurate funtion
 
     }
     void Start()
@@ -45,16 +65,15 @@ public class EnemyLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        print(enemyIsEliminated);
         if (isMoveInCurve&&CompareTag("BezierCurveEnemy"))
         {
             StartCoroutine(FollowBezierCurve(routeIndex));
         }
-        if (CompareTag("CircularEnemy")&&!notMoving)
+        else if (CompareTag("CircularEnemy")&&!notMoving)
         {
             MoveInCircle();
         }
-        if (CompareTag("DirectEnemy")&&!notMoving)
+        else if (CompareTag("DirectEnemy")&&!notMoving)
         {
             MoveToPlayer();
         }
@@ -76,20 +95,34 @@ public class EnemyLogic : MonoBehaviour
 
     void MoveInCircle()
     {
+        if (Input.GetMouseButton(0) && refToPlayer.GetComponent<PlayerMovement>().canDash)
+        {
+            rotateAngleSpeed = decayRotateAngleSpeed;//when dashing enemy moves slower
+        }
+        else rotateAngleSpeed = originalAngleSpeed;//reset to normal speed when player is not dashing
         circularCenter.transform.Rotate(Vector3.forward,rotateAngleSpeed*Time.deltaTime);      
     }
 
     private IEnumerator FollowBezierCurve(int routeNumber)//make enemy move along bezier curve
     {
+        
         isMoveInCurve = false;//control the coroutine to start
         Vector2 p0 = routes[routeNumber].GetChild(0).position;
         Vector2 p1 = routes[routeNumber].GetChild(1).position;
         Vector2 p2 = routes[routeNumber].GetChild(2).position;
         Vector2 p3 = routes[routeNumber].GetChild(3).position;
         //setting waypoints
-        
+
+
         while (t_InterpolatePosition < 1)
         {
+            if (Input.GetMouseButton(0) && refToPlayer.GetComponent<PlayerMovement>().canDash)
+            {
+                curveMoveSpeed = decayCurveSpeed;//when dashing enemy moves slower
+            }
+            else curveMoveSpeed = originalCurveSpeed;//reset to normal speed when player is not dashing
+
+
             t_InterpolatePosition += Time.deltaTime * curveMoveSpeed;//interpolating point moving
             enemyPosition = Mathf.Pow(1 - t_InterpolatePosition, 3) * p0 +
                             3 * Mathf.Pow(1 - t_InterpolatePosition, 2) * t_InterpolatePosition * p1 +
@@ -150,9 +183,10 @@ public class EnemyLogic : MonoBehaviour
     private void OnDestroy()
     {     
         refToPlayer.GetComponent<PlayerMovement>().playerHealth += 10;
-        refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);//restore player health bar when enemy is eliminated      
-        enemyIsEliminated=false;
+        refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);//restore player health bar when enemy is eliminated
+        refToUiManager.ui_healthBarSprite.color = Color.green;
+        enemyIsEliminated =false;
         shakeTimer = 0.5f;
-        refToUiManager.num_eliminated += 1;
+        refToUiManager.num_eliminated += 1;//record enemy kill
     }
 }

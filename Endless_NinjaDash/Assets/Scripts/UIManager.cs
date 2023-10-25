@@ -4,23 +4,29 @@ using UnityEngine;
 using DG.Tweening;
 using Cinemachine;
 using TMPro;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI refToTextMesh;
+    [SerializeField] private TextMeshProUGUI refToTextMesh, refToTimeInfo;
     public RectTransform ui_healthBar;
+    public Image ui_healthBarSprite;
     private PlayerMovement refToPlayerScript;
     private GameObject indicatorDash, mouse, direction,refToPlayer;
     private CinemachineVirtualCamera refToVirtualCM;
     public float duration, totalTime,shakeIntensity=2;
+    private float timer_ColorChange, num_Time_Second,num_Time_Minute,num_Time_milliSec;
     public int num_eliminated;
+
     public bool isEnemyDestroied;
     [SerializeField] CinemachineBasicMultiChannelPerlin shakeProperties;
 
 
     private void Awake()
     {
+        timer_ColorChange = 1;
         ui_healthBar = GameObject.Find("HealthBar").GetComponent<RectTransform>();
+        ui_healthBarSprite = GameObject.Find("HealthBar").GetComponent<Image>();
         refToPlayerScript = GameObject.Find("Player").GetComponent<PlayerMovement>();
         mouse = GameObject.Find("Mouse");
         indicatorDash = GameObject.Find("DashIndicator");
@@ -29,6 +35,7 @@ public class UIManager : MonoBehaviour
         refToVirtualCM = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
         shakeProperties = refToVirtualCM.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
         totalTime = 3;
+        refToTimeInfo = GameObject.Find("TimeSurvive").GetComponent<TextMeshProUGUI>();
         refToTextMesh = GameObject.Find("Text_Enemy").GetComponent<TextMeshProUGUI>();
         //duration = totalTime;
     }
@@ -43,12 +50,17 @@ public class UIManager : MonoBehaviour
        
         if (GameManager.instance.gameFlow==GameManager.GameFlow.gameStart)
         {
-            refToTextMesh.text = ""+num_eliminated;
+           
+            refToTextMesh.text = ""+num_eliminated;          
             mouse.transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0, 0, 10);
             indicatorDash.transform.position = refToPlayer.transform.position; //dash direction indicator follow the player
             DirectionIndicator();
             CameraEffect();
-            ui_healthBar.sizeDelta -= new Vector2(refToPlayerScript.decayTime*4, 0)*Time.deltaTime;//scalling health bar according to players health decay and time
+            HealthBar();
+            timeCounting();
+
+
+
         }
     }
 
@@ -59,12 +71,52 @@ public class UIManager : MonoBehaviour
         indicatorDash.transform.localRotation = Quaternion.AngleAxis(degree, Vector3.forward);
     }
 
+    void timeCounting()
+    {
+        num_Time_milliSec += Time.deltaTime;
+        if (num_Time_milliSec >=9)
+        {
+            num_Time_Second += 1;
+            num_Time_milliSec = -1;
+            refToTimeInfo.text = "0" + num_Time_Minute.ToString("F0") + ":" + num_Time_Second.ToString("F0") + "0";
+        }
+        if(num_Time_Second > 5)
+        {
+            num_Time_Minute += 1;
+            num_Time_Second = 0;
+        }  
+        refToTimeInfo.text = "0" + num_Time_Minute.ToString("F0") + ":"+ num_Time_Second.ToString("F0")+ num_Time_milliSec.ToString("F0");
+
+
+    }
+
+    void HealthBar()
+    {
+          
+        if(ui_healthBarSprite.color == Color.red)//by using red to show player health bar is losing
+        {
+            ui_healthBar.sizeDelta -= new Vector2(refToPlayerScript.decayTime * 4, 0) * Time.deltaTime;//scalling health bar according to players health decay and time
+            print("Works");
+        }
+        if (ui_healthBarSprite.color == Color.green)//by using green to show player restore the health
+        {
+            timer_ColorChange -= Time.deltaTime;
+            if (timer_ColorChange < 0)
+            {
+                ui_healthBarSprite.color = Color.red;
+                timer_ColorChange = 1;
+            } //when enemy is eliminated, change color to show health bar got bonus
+        }
+       
+
+    }
+
     private void CameraEffect()
     {
-        float zoomInTime = 2;
-        float zoomOutTime = 4f;
+        float zoomInTime = 1;
+        float zoomOutTime = 2f;
         if (refToPlayerScript.isDuringCharging)//when dashing...
-        {
+        { 
             refToVirtualCM.m_Lens.OrthographicSize-= zoomInTime * Time.deltaTime;//zoom in virtual camera when player is dashing
             if (refToVirtualCM.m_Lens.OrthographicSize <= 6)
             {
@@ -91,7 +143,6 @@ public class UIManager : MonoBehaviour
     public void CameraStopShake()
     {
         shakeProperties.m_AmplitudeGain = 0;
-        print("Works");
     }
 
 
