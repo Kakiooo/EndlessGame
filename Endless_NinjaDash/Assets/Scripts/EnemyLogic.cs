@@ -25,13 +25,13 @@ public class EnemyLogic : MonoBehaviour
     {
         refToPlayer = GameObject.Find("Player");
         refToUiManager = GameObject.Find("GameUI").GetComponent<UIManager>();
-        speed = 4;
+        speed = Random.Range(3f,5f);
         originalSpeed = speed;       
         decaySpeed = speed/2;
-        rotateAngleSpeed = 90;
+        rotateAngleSpeed = Random.Range(60f,120f);
         originalAngleSpeed = rotateAngleSpeed;
         decayRotateAngleSpeed = rotateAngleSpeed/3;
-        curveMoveSpeed = 0.5f;
+        curveMoveSpeed = Random.Range(0.3f,0.7f);
         decayCurveSpeed = curveMoveSpeed / 3;
         originalCurveSpeed = curveMoveSpeed;
         isMoveInCurve = true;
