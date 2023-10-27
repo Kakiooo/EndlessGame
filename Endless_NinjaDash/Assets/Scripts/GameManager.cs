@@ -10,14 +10,16 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;//creating singleton
     public enum GameFlow {gameStart,gamePause,gameEnd}//setting game flow
     public GameFlow gameFlow;
+    public enum Wave {wave_1,wave_2,wave_3, wave_4 };
+    public Wave[] wave=new Wave [4];
+    public Wave currentWave;
     [SerializeField] private bool canSpawnEnemy;
     [SerializeField]private Transform[]enemySpawnPoints = new Transform[4];
     [SerializeField]private GameObject[]enemyType=new GameObject[3];
-    public enum Wave { wave_1, wave_2,wave_3}
-    public Wave wave;
     private PlayerMovement refToPlayerScript;
+    private int wave_Index,num_Enemy;
     public Camera refToCM;
-    [SerializeField] private float spawnDelay;
+    [SerializeField] private float spawnDelay,timer;
     private int spawnPointIndex,enemyIndex;
     
     private void Awake()
@@ -27,32 +29,38 @@ public class GameManager : MonoBehaviour
         refToCM=GameObject.Find("Main Camera").GetComponent<Camera>();
         refToPlayerScript = GameObject.Find("Player").GetComponent<PlayerMovement>();
         spawnDelay = 10;
-
+        timer = spawnDelay;
+        num_Enemy = 4;
     }
 
     void Start()
     {
-        
     }
 
 
     void Update()
     {
+        currentWave = wave[wave_Index];//load in the value of wave
+        print(wave_Index);
         if (canSpawnEnemy)
         {
-            switch (wave)
+            switch(currentWave)//define the enemy instantiate function according to wave
             {
                 case Wave.wave_1:
-                    StartCoroutine(waveSpawn_Learning(3,0));
+                    StartCoroutine(waveSpawn_Learning(3, 0));
                     break;
                 case Wave.wave_2:
-                    StartCoroutine(waveSpawn_Learning(3,1));
+                    StartCoroutine(waveSpawn_Learning(3, 1));
                     break;
                 case Wave.wave_3:
-                    StartCoroutine(waveSpawn(5));
+                    StartCoroutine(waveSpawn_Learning(3, 2));
+                    break;
+                case Wave.wave_4:
+                    StartCoroutine(waveSpawn(num_Enemy));
                     break;
             }
         }
+
          
     }
 
@@ -66,6 +74,7 @@ public class GameManager : MonoBehaviour
         }
         yield return new WaitForEndOfFrame();
         canSpawnEnemy = false;
+        wave_Index += 1;//switching the wave
         yield return new WaitForSeconds(spawnDelay);
         canSpawnEnemy = true;
 
@@ -81,6 +90,7 @@ public class GameManager : MonoBehaviour
             print(i);
         }
         yield return new WaitForEndOfFrame();
+        wave_Index = wave.Length-1;//last state of wave is repeating until the end of game
         canSpawnEnemy = false;
         yield return new WaitForSeconds(spawnDelay);  
         canSpawnEnemy=true;

@@ -2625,6 +2625,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameFlow: 0
+  wave: 00000000010000000200000003000000
+  currentWave: 0
   canSpawnEnemy: 1
   enemySpawnPoints:
   - {fileID: 78482951}
@@ -2637,9 +2639,9 @@ MonoBehaviour:
   - {fileID: 6813768756123024632, guid: d15359f2a923b0e49b0ac07f8eab9d2b, type: 3}
   - {fileID: 8733023078695515280, guid: 220a1107a72e9eb4d8624edaab06f2f4, type: 3}
   - {fileID: 4060541584105275937, guid: 24efc1e73865c4645aa9238e0ce1ecc9, type: 3}
-  wave: 0
   refToCM: {fileID: 0}
   spawnDelay: 0
+  timer: 0
 --- !u!4 &1445164649
 Transform:
   m_ObjectHideFlags: 0
