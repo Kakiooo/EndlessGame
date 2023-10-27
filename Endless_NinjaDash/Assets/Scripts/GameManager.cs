@@ -41,7 +41,6 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         currentWave = wave[wave_Index];//load in the value of wave
-        print(wave_Index);
         if (canSpawnEnemy)
         {
             switch(currentWave)//define the enemy instantiate function according to wave
@@ -70,7 +69,6 @@ public class GameManager : MonoBehaviour
         {
             spawnPointIndex = Random.Range(0, enemySpawnPoints.Length);
             Instantiate(enemyType[index_EnemyType], enemySpawnPoints[spawnPointIndex].position, Quaternion.identity);
-            print(i);
         }
         yield return new WaitForEndOfFrame();
         canSpawnEnemy = false;

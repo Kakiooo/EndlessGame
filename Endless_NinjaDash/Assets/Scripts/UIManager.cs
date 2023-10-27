@@ -5,17 +5,18 @@ using DG.Tweening;
 using Cinemachine;
 using TMPro;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI refToTextMesh, refToTimeInfo;
-    public RectTransform ui_healthBar;
+    public RectTransform ui_healthBar,ui_dashCharge;
     public Image ui_healthBarSprite;
     private PlayerMovement refToPlayerScript;
     private GameObject indicatorDash, mouse, direction,refToPlayer;
     private CinemachineVirtualCamera refToVirtualCM;
-    public float duration, totalTime,shakeIntensity=2;
-    private float timer_ColorChange, num_Time_Second,num_Time_Minute,num_Time_milliSec;
+    public float duration, totalTime,shakeIntensity=2; 
+    private float timer_ColorChange, num_Time_Second,num_Time_Minute,num_Time_milliSec,ui_dashChargeBarX;
     public int num_eliminated;
 
     public bool isEnemyDestroied;
@@ -26,6 +27,7 @@ public class UIManager : MonoBehaviour
     {
         timer_ColorChange = 1;
         ui_healthBar = GameObject.Find("HealthBar").GetComponent<RectTransform>();
+        ui_dashCharge = GameObject.Find("DashEnergy").GetComponent<RectTransform>();
         ui_healthBarSprite = GameObject.Find("HealthBar").GetComponent<Image>();
         refToPlayerScript = GameObject.Find("Player").GetComponent<PlayerMovement>();
         mouse = GameObject.Find("Mouse");
@@ -37,6 +39,8 @@ public class UIManager : MonoBehaviour
         totalTime = 3;
         refToTimeInfo = GameObject.Find("TimeSurvive").GetComponent<TextMeshProUGUI>();
         refToTextMesh = GameObject.Find("Text_Enemy").GetComponent<TextMeshProUGUI>();
+        ui_dashChargeBarX = 20;
+
         //duration = totalTime;
     }
     void Start()
@@ -58,7 +62,7 @@ public class UIManager : MonoBehaviour
             CameraEffect();
             HealthBar();
             timeCounting();
-
+            DashCharging();
 
 
         }
@@ -70,7 +74,31 @@ public class UIManager : MonoBehaviour
         //indicatorDash.transform.up = mouse.transform.position - indicatorDash.transform.position;
         indicatorDash.transform.localRotation = Quaternion.AngleAxis(degree, Vector3.forward);
     }
+    private void DashCharging()
+    {
+        float enLargeSpeed = ui_dashChargeBarX / refToPlayerScript.dashCoolDown;//enlarge the dash energy bar according to dash cool down
+        float shrinkSpeed = ui_dashChargeBarX / refToPlayerScript.value_dashCharging;//shrink the dash energy bar according to charging dash time
+        print(shrinkSpeed);
+       
+        if (Input.GetKey(KeyCode.Mouse0)&&refToPlayerScript.canDash)
+        {
+            ui_dashCharge.sizeDelta -= new Vector2(shrinkSpeed * Time.deltaTime, 0);
+            if (ui_dashCharge.sizeDelta.x <=0)
+            {
+                ui_dashCharge.sizeDelta = new Vector2(0, 5);//limit the size of dash charging bar
+            }
+        }
+        if (!refToPlayerScript.canDash&& refToPlayerScript.isRestoreBar)
+        {
+            ui_dashCharge.sizeDelta += new Vector2(enLargeSpeed * Time.deltaTime, 0);
+            if (ui_dashCharge.sizeDelta.x >= 20)
+            {
+                ui_dashCharge.sizeDelta = new Vector2(20, 5);//limit the size of dash charging bar
+            }
+        }
 
+
+    }
     void timeCounting()
     {
         num_Time_milliSec += Time.deltaTime;

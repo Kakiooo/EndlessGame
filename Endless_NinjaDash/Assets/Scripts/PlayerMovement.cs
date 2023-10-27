@@ -9,10 +9,9 @@ public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D playerRigid;
     private GameObject dashDirection,refToMouse;
-    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashPower, dashCoolDown,dashDuration;
-    public float playerHealth, decayTime,dashCharging;
-    [SerializeField] private bool isDashCharged;
-    public bool isDuringCharging, isDashing, canDash;
+    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashPower,dashDuration, dashCharging;
+    public float playerHealth, decayTime, dashCoolDown,value_dashCharging;
+    public bool isDuringCharging, isDashing, canDash, isDashCharged,isRestoreBar;
     private UIManager refToUIManager;
 
     private void Awake()
@@ -28,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
         dashDuration = 0.25f;
         canDash = true;
         dashCharging = 2;
+        value_dashCharging = dashCharging;
         dashDirection = GameObject.Find("direction");
 
 
@@ -66,6 +66,7 @@ public class PlayerMovement : MonoBehaviour
                     dashCharging = 2;//reset value
                 }
             }
+
             if (isDashCharged)
             {
                 StartCoroutine(Dash());
@@ -74,6 +75,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 //GameManager.instance.gameFlow = GameManager.GameFlow.gameEnd;
             }
+           
         }
      
        
@@ -99,7 +101,9 @@ public class PlayerMovement : MonoBehaviour
         playerRigid.AddForce(direction * dashPower, ForceMode2D.Impulse);
         yield return new WaitForSeconds(dashDuration);
         isDashing = false;
+        isRestoreBar=true;
         yield return new WaitForSeconds(dashCoolDown);
+        isRestoreBar = false;
         canDash = true;
         dashDirection.GetComponent<SpriteRenderer>().color = cl;//reset dash direction sign after dashing
 
