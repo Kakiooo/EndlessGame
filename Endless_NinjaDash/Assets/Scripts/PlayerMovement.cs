@@ -52,7 +52,6 @@ public class PlayerMovement : MonoBehaviour
             DontDestroyOnLoad(gameObject);            
             Movement();//playermovement
             DashPowerCharge();
-            print(dashPower);
 
             if (playerHealth <= 0)
             {
