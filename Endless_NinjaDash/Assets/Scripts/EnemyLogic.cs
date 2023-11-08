@@ -10,11 +10,13 @@ public class EnemyLogic : MonoBehaviour
     [SerializeField] private delegate void enemyMovement();
     [SerializeField] private static event enemyMovement enemyMovementFunction;
     [SerializeField] List<enemyMovement>movementList = new List<enemyMovement>();
+    public enum EnemyState { normalState,bulletTimeState}
     private GameObject refToPlayer;
     private Transform circularCenter;
     private float speed,decaySpeed,rotateAngleSpeed,originalSpeed,decayRotateAngleSpeed,originalAngleSpeed;
     private UIManager refToUiManager;
     [SerializeField] private Transform[] routes;//route of bezier curve
+    [SerializeField] private Transform[] spwanPoint_BlockEnemy;   
     [SerializeField] private int routeIndex;//how many routes need to go
     private bool isMoveInCurve;
     [SerializeField] private bool enemyIsEliminated,notMoving;
@@ -50,6 +52,8 @@ public class EnemyLogic : MonoBehaviour
                 break;
             case "DirectEnemy":
                 break;
+            case "BlockEnemy":
+                break;
         }//make enemy match the type of themselves with accurate funtion
 
     }
@@ -76,6 +80,10 @@ public class EnemyLogic : MonoBehaviour
         else if (CompareTag("DirectEnemy")&&!notMoving)
         {
             MoveToPlayer();
+        }
+        else if (CompareTag("BlockEnemy") && !notMoving)
+        {
+           
         }
 
         CameraShakingLogic(); //when enemies are eliminated,camera shaking
@@ -149,7 +157,7 @@ public class EnemyLogic : MonoBehaviour
         else if(collision.gameObject.tag == "Player")
         {
             refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 10;
-            refToUiManager.ui_healthBar.sizeDelta -= new Vector2(40, 0)*Time.deltaTime;//enemy damage to player
+            refToUiManager.ui_healthBar.sizeDelta -= new Vector2(150, 0)*Time.deltaTime;//enemy damage to player
         }
     }
     private void OnTriggerStay2D(Collider2D collision)//when enemy is over player
@@ -161,7 +169,7 @@ public class EnemyLogic : MonoBehaviour
         else if (collision.gameObject.tag == "Player")
         {
             refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 10;
-            refToUiManager.ui_healthBar.sizeDelta -= new Vector2(40, 0)*Time.deltaTime;//enemy damage to player
+            refToUiManager.ui_healthBar.sizeDelta -= new Vector2(150, 0)*Time.deltaTime;//enemy damage to player
         }
     }
 
@@ -181,12 +189,16 @@ public class EnemyLogic : MonoBehaviour
         }
     }
     private void OnDestroy()
-    {     
-        refToPlayer.GetComponent<PlayerMovement>().playerHealth += 10;
-        refToUiManager.ui_healthBar.sizeDelta+=new Vector2(40,0);//restore player health bar when enemy is eliminated
-        refToUiManager.ui_healthBarSprite.color = Color.green;
-        enemyIsEliminated =false;
-        shakeTimer = 0.5f;
-        refToUiManager.num_eliminated += 1;//record enemy kill
+    {   
+        if(gameObject != null)
+        {
+            refToPlayer.GetComponent<PlayerMovement>().playerHealth += 10;
+            refToUiManager.ui_healthBar.sizeDelta += new Vector2(50, 0);//restore player health bar when enemy is eliminated
+            refToUiManager.ui_healthBarSprite.color = Color.green;
+            enemyIsEliminated = false;
+            shakeTimer = 0.5f;
+            refToUiManager.num_eliminated += 1;//record enemy kill
+        }       
+
     }
 }

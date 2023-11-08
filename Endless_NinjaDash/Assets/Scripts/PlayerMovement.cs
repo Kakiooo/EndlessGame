@@ -9,8 +9,8 @@ public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D playerRigid;
     private GameObject dashDirection,refToMouse;
-    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity, dashPower,dashDuration, dashCharging;
-    public float playerHealth, decayTime, dashCoolDown,value_dashCharging;
+    private float playerDirectionHorizontal, playerDirectionVertical, playerVelocity,dashDuration, dashChargeTime,decaySpeed;
+    public float playerHealth, decayTime, dashCoolDown,value_dashCharging, dashPower;
     public bool isDuringCharging, isDashing, canDash, isDashCharged,isRestoreBar;
     private UIManager refToUIManager;
 
@@ -22,12 +22,13 @@ public class PlayerMovement : MonoBehaviour
         playerVelocity = 10f;
         playerHealth = 100;
         decayTime = 4;
-        dashPower = 20;
+        dashPower = 10;
         dashCoolDown = 1;
         dashDuration = 0.25f;
         canDash = true;
-        dashCharging = 2;
-        value_dashCharging = dashCharging;
+        dashChargeTime = 3;
+        decaySpeed = 0.25f;
+        value_dashCharging = dashChargeTime;
         dashDirection = GameObject.Find("direction");
 
 
@@ -50,27 +51,9 @@ public class PlayerMovement : MonoBehaviour
             playerHealth -= decayTime * Time.deltaTime;//health decay logic
             DontDestroyOnLoad(gameObject);            
             Movement();//playermovement
-            if (!Input.GetKey(KeyCode.Mouse0))
-            {
-                dashCharging = 2;
-                isDuringCharging = false;//use to determine if the camera need to zoom
-            }
-            if (Input.GetKey(KeyCode.Mouse0)&&canDash)
-            {
-                isDuringCharging = true;//use to determine if the camera need to zoom
-                playerRigid.velocity = new Vector2(0, 0);//when player dashing,movement is disfunctional
-                dashCharging -= Time.deltaTime;//hold the mouse and wait for dash
-                if (dashCharging < 0)
-                {
-                    isDashCharged = true;
-                    dashCharging = 2;//reset value
-                }
-            }
+            DashPowerCharge();
+            print(dashPower);
 
-            if (isDashCharged)
-            {
-                StartCoroutine(Dash());
-            }
             if (playerHealth <= 0)
             {
                 //GameManager.instance.gameFlow = GameManager.GameFlow.gameEnd;
@@ -90,6 +73,34 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
+    private void DashPowerCharge()
+    {
+        if (!Input.GetKey(KeyCode.Mouse0))
+        {
+
+            dashChargeTime = 2;
+            isDuringCharging = false;//use to determine if the camera need to zoom
+            dashChargeTime = 2;//reset value
+            if (isDashCharged)
+            {
+                StartCoroutine(Dash());
+            }
+        }
+        if (Input.GetKey(KeyCode.Mouse0) && canDash)
+        {
+            dashPower += 10*Time.deltaTime;//adding dash power when charging for longer time
+            isDashCharged = true;
+            isDuringCharging = true;//use to determine if the camera need to zoom
+            playerRigid.velocity = new Vector2(playerDirectionHorizontal * playerVelocity * decaySpeed, playerDirectionVertical * playerVelocity * decaySpeed);//when player accumulate dashing,velocity decreases
+            dashChargeTime -= Time.deltaTime;//hold the mouse and wait for dash
+            if (dashChargeTime < 0)
+            {
+                float maximumDashPower = 30;
+                dashPower =maximumDashPower;//maximum dashpower
+            }
+        }
+    }
+
     private IEnumerator Dash()
     {
         Vector3 direction = (refToMouse.transform.position - transform.position).normalized;
@@ -106,6 +117,7 @@ public class PlayerMovement : MonoBehaviour
         isRestoreBar = false;
         canDash = true;
         dashDirection.GetComponent<SpriteRenderer>().color = cl;//reset dash direction sign after dashing
+        dashPower = 10;//reset dash power
 
     }
 

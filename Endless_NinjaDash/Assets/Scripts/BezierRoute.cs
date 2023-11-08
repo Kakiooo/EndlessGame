@@ -9,6 +9,7 @@ public class BezierRoute : MonoBehaviour
     public Vector2 bezierPosition;
     private void OnDrawGizmos()
     {
+        
         for (float i = 0; i <= 1; i += 0.05f)
         {
             bezierPosition = Mathf.Pow(1 - i, 3) * wayPoints[0].position +

@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
         gameFlow = GameFlow.gameStart;
         refToCM=GameObject.Find("Main Camera").GetComponent<Camera>();
         refToPlayerScript = GameObject.Find("Player").GetComponent<PlayerMovement>();
-        spawnDelay = 10;
+        spawnDelay = 5;
         timer = spawnDelay;
         num_Enemy = 4;
     }
@@ -90,6 +90,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForEndOfFrame();
         wave_Index = wave.Length-1;//last state of wave is repeating until the end of game
         canSpawnEnemy = false;
+        spawnDelay = 10;
         yield return new WaitForSeconds(spawnDelay);  
         canSpawnEnemy=true;
        

@@ -15,8 +15,8 @@ public class UIManager : MonoBehaviour
     private PlayerMovement refToPlayerScript;
     private GameObject indicatorDash, mouse, direction,refToPlayer;
     private CinemachineVirtualCamera refToVirtualCM;
-    public float duration, totalTime,shakeIntensity=2; 
-    private float timer_ColorChange, num_Time_Second,num_Time_Minute,num_Time_milliSec,ui_dashChargeBarX;
+    public float duration, totalTime,shakeIntensity=2;
+    private float timer_ColorChange, num_Time;
     public int num_eliminated;
 
     public bool isEnemyDestroied;
@@ -27,7 +27,6 @@ public class UIManager : MonoBehaviour
     {
         timer_ColorChange = 1;
         ui_healthBar = GameObject.Find("HealthBar").GetComponent<RectTransform>();
-        ui_dashCharge = GameObject.Find("DashEnergy").GetComponent<RectTransform>();
         ui_healthBarSprite = GameObject.Find("HealthBar").GetComponent<Image>();
         refToPlayerScript = GameObject.Find("Player").GetComponent<PlayerMovement>();
         mouse = GameObject.Find("Mouse");
@@ -39,7 +38,6 @@ public class UIManager : MonoBehaviour
         totalTime = 3;
         refToTimeInfo = GameObject.Find("TimeSurvive").GetComponent<TextMeshProUGUI>();
         refToTextMesh = GameObject.Find("Text_Enemy").GetComponent<TextMeshProUGUI>();
-        ui_dashChargeBarX = 20;
 
         //duration = totalTime;
     }
@@ -76,44 +74,34 @@ public class UIManager : MonoBehaviour
     }
     private void DashCharging()
     {
-        float enLargeSpeed = ui_dashChargeBarX / refToPlayerScript.dashCoolDown;//enlarge the dash energy bar according to dash cool down
-        float shrinkSpeed = ui_dashChargeBarX / refToPlayerScript.value_dashCharging;//shrink the dash energy bar according to charging dash time
-        print(shrinkSpeed);
-       
-        if (Input.GetKey(KeyCode.Mouse0)&&refToPlayerScript.canDash)
+        if (refToPlayerScript.dashPower > 10)
         {
-            ui_dashCharge.sizeDelta -= new Vector2(shrinkSpeed * Time.deltaTime, 0);
-            if (ui_dashCharge.sizeDelta.x <=0)
+            direction.transform.localScale += new Vector3(0, Time.deltaTime,0);//when charging the direction mark will become larger to indicate stronger dash
+            if (refToPlayerScript.dashPower >= 30)
             {
-                ui_dashCharge.sizeDelta = new Vector2(0, 5);//limit the size of dash charging bar
+                direction.transform.localScale = new Vector3(1, 3, 0);//limit the maximum size of direction mark
             }
         }
-        if (!refToPlayerScript.canDash&& refToPlayerScript.isRestoreBar)
+        if (!refToPlayerScript.isDuringCharging)
         {
-            ui_dashCharge.sizeDelta += new Vector2(enLargeSpeed * Time.deltaTime, 0);
-            if (ui_dashCharge.sizeDelta.x >= 20)
-            {
-                ui_dashCharge.sizeDelta = new Vector2(20, 5);//limit the size of dash charging bar
-            }
+            direction.transform.localScale = new Vector3(1, 1, 0);//reset to original size,and make player understand the dash is ready
         }
-
-
     }
     void timeCounting()
     {
-        num_Time_milliSec += Time.deltaTime;
-        if (num_Time_milliSec >=9)
-        {
-            num_Time_Second += 1;
-            num_Time_milliSec = -1;
-            refToTimeInfo.text = "0" + num_Time_Minute.ToString("F0") + ":" + num_Time_Second.ToString("F0") + "0";
-        }
-        if(num_Time_Second > 5)
-        {
-            num_Time_Minute += 1;
-            num_Time_Second = 0;
-        }  
-        refToTimeInfo.text = "0" + num_Time_Minute.ToString("F0") + ":"+ num_Time_Second.ToString("F0")+ num_Time_milliSec.ToString("F0");
+        //num_Time_milliSec += Time.deltaTime;
+        //if (num_Time_milliSec >=9)
+        //{
+        //    num_Time_Second += 1;
+        //    num_Time_milliSec = -1;
+        //    refToTimeInfo.text = "0" + num_Time_Minute.ToString("F0") + ":" + num_Time_Second.ToString("F0") + "0";
+        //}
+        //if(num_Time_Second > 5)
+        //{
+        //    num_Time_Minute += 1;
+        //    num_Time_Second = 0;
+        //}  
+        //refToTimeInfo.text = "0" + num_Time_Minute.ToString("F0") + ":"+ num_Time_Second.ToString("F0")+ num_Time_milliSec.ToString("F0");
 
 
     }
@@ -123,7 +111,7 @@ public class UIManager : MonoBehaviour
           
         if(ui_healthBarSprite.color == Color.red)//by using red to show player health bar is losing
         {
-            ui_healthBar.sizeDelta -= new Vector2(refToPlayerScript.decayTime * 4, 0) * Time.deltaTime;//scalling health bar according to players health decay and time
+            ui_healthBar.sizeDelta -= new Vector2(refToPlayerScript.decayTime * 15, 0) * Time.deltaTime;//scalling health bar according to players health decay and time
             print("Works");
         }
         if (ui_healthBarSprite.color == Color.green)//by using green to show player restore the health
@@ -141,14 +129,14 @@ public class UIManager : MonoBehaviour
 
     private void CameraEffect()
     {
-        float zoomInTime = 1;
-        float zoomOutTime = 2f;
+        float zoomInTime = 1.5f;
+        float zoomOutTime = 3f;
         if (refToPlayerScript.isDuringCharging)//when dashing...
         { 
             refToVirtualCM.m_Lens.OrthographicSize-= zoomInTime * Time.deltaTime;//zoom in virtual camera when player is dashing
-            if (refToVirtualCM.m_Lens.OrthographicSize <= 6)
+            if (refToVirtualCM.m_Lens.OrthographicSize <= 5)
             {
-                refToVirtualCM.m_Lens.OrthographicSize=6;//when zoom in camera limit the size of virtual camera
+                refToVirtualCM.m_Lens.OrthographicSize=5;//when zoom in camera limit the size of virtual camera
             }
         }
         else //when is not dashing...
@@ -161,12 +149,10 @@ public class UIManager : MonoBehaviour
         }
 
     }
-
     public void CameraShake()
-    {
-        
+    {        
         shakeProperties.m_FrequencyGain = 1;
-        shakeProperties.m_AmplitudeGain = 3;
+        shakeProperties.m_AmplitudeGain = 5;
     }
     public void CameraStopShake()
     {
