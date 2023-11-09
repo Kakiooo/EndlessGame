@@ -218,7 +218,7 @@ GameObject:
   m_Component:
   - component: {fileID: 150106592}
   m_Layer: 0
-  m_Name: SpawnPoint1
+  m_Name: wayPoint1
   m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -518,7 +518,7 @@ GameObject:
   m_Component:
   - component: {fileID: 338638191}
   m_Layer: 0
-  m_Name: SpawnPoint4
+  m_Name: wayPoint4
   m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -580,7 +580,7 @@ GameObject:
   m_Component:
   - component: {fileID: 414409492}
   m_Layer: 0
-  m_Name: SpawnPoint2
+  m_Name: wayPoint2
   m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -2169,7 +2169,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1033662587}
   m_Layer: 0
-  m_Name: SpawnPoint3
+  m_Name: wayPoint3
   m_TagString: Untagged
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -2764,9 +2764,9 @@ MonoBehaviour:
   - {fileID: 1715438723}
   - {fileID: 536006408}
   enemyType:
-  - {fileID: 6813768756123024632, guid: d15359f2a923b0e49b0ac07f8eab9d2b, type: 3}
-  - {fileID: 8733023078695515280, guid: 220a1107a72e9eb4d8624edaab06f2f4, type: 3}
-  - {fileID: 4060541584105275937, guid: 24efc1e73865c4645aa9238e0ce1ecc9, type: 3}
+  - {fileID: 4287686734906362943, guid: 0e955b66c70195649b540617fd4a3e85, type: 3}
+  - {fileID: 6262184587611395030, guid: 220a1107a72e9eb4d8624edaab06f2f4, type: 3}
+  - {fileID: 5198285812130940240, guid: 24efc1e73865c4645aa9238e0ce1ecc9, type: 3}
   refToCM: {fileID: 0}
   spawnDelay: 0
   timer: 0
@@ -2858,6 +2858,7 @@ MonoBehaviour:
   isAwakeVerti: 0
   enemyIsEliminated: 0
   notMoving: 0
+  isBlust: 0
 --- !u!212 &1461677011
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3078,6 +3079,7 @@ MonoBehaviour:
   isAwakeVerti: 0
   enemyIsEliminated: 0
   notMoving: 0
+  isBlust: 0
 --- !u!1 &1559374700
 GameObject:
   m_ObjectHideFlags: 0

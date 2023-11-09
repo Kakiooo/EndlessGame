@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class EnemyLogic : MonoBehaviour
 {
-
+    private ParticleSystem particlelSystem;
     [SerializeField] private delegate void enemyMovement();
     [SerializeField] private static event enemyMovement enemyMovementFunction;
     [SerializeField] List<enemyMovement>movementList = new List<enemyMovement>();
@@ -19,14 +19,15 @@ public class EnemyLogic : MonoBehaviour
     [SerializeField] private Transform[] BlockEnemy_horizontal=new Transform[2];
     [SerializeField] private Transform[] BlockEnemy_vertical = new Transform[2];
     [SerializeField] private int routeIndex;//how many routes need to go
-    private bool isMoveInCurve, moveLeft,moveUp;
+    private bool isMoveInCurve, moveLeft,moveUp,isTriggerOff;
     public bool isAwakeHori,isAwakeVerti;
-    [SerializeField] private bool enemyIsEliminated,notMoving;
+    [SerializeField] private bool enemyIsEliminated,notMoving,isBlust;
     private float curveMoveSpeed, t_InterpolatePosition,shakeTimer,decayCurveSpeed,originalCurveSpeed;
     private Vector2 enemyPosition;
     string tagName;
     private void Awake()
     {
+        particlelSystem = GetComponent<ParticleSystem>();//add particle effect
         refToPlayer = GameObject.Find("Player");
         refToUiManager = GameObject.Find("GameUI").GetComponent<UIManager>();
         speed = Random.Range(3f,5f);
@@ -72,6 +73,7 @@ public class EnemyLogic : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         if (isMoveInCurve&&CompareTag("BezierCurveEnemy"))
         {
             StartCoroutine(FollowBezierCurve(routeIndex));
@@ -137,7 +139,7 @@ public class EnemyLogic : MonoBehaviour
          else
         {
             transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_horizontal[1].transform.position, horizontalSpeed * Time.deltaTime);//moveToRight
-        }
+         }
     }
 
     void VerticalBlock()
@@ -199,23 +201,18 @@ public class EnemyLogic : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)//when enemy enter player
-    {
-        if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true&&collision.gameObject.tag=="Player")//condintion for player to eliminate enemies
-        {
-            enemyIsEliminated = true;
-        }
-        else if(collision.gameObject.tag == "Player")
-        {
-            refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 10;
-            refToUiManager.ui_healthBar.sizeDelta -= new Vector2(150, 0)*Time.deltaTime;//enemy damage to player
-        }
-    }
+
     private void OnTriggerStay2D(Collider2D collision)//when enemy is over player
     {
+        if (isTriggerOff)
+        {
+            return;
+        }//when enemy is destroy stop detecting the collision
         if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true && collision.gameObject.tag == "Player")//condintion for player to eliminate enemies
         {
-            enemyIsEliminated=true;        
+            enemyIsEliminated = true;
+            GetComponent<SpriteRenderer>().color = new Vector4(0, 0, 0, 0);
+            isBlust=true;
         }
         else if (collision.gameObject.tag == "Player")
         {
@@ -226,22 +223,31 @@ public class EnemyLogic : MonoBehaviour
 
     private void CameraShakingLogic()
     {
-
         if (shakeTimer > 0 && enemyIsEliminated)
         {
+            isTriggerOff=true;
             shakeTimer -= Time.deltaTime;
             refToUiManager.CameraShake();
+            if (isBlust)//trigger the blust when enemy is eliminated
+            {
+                particlelSystem.Play();
+                isBlust = false;
+            }
+
         }
         else if (shakeTimer < 0)
         {
+
             refToUiManager.CameraStopShake();
             notMoving = true;
             Destroy(gameObject);
         }
+
     }
     private void OnDestroy()
-    {   
-        if(gameObject != null)
+    {
+        
+        if (gameObject != null)
         {
             refToPlayer.GetComponent<PlayerMovement>().playerHealth += 10;
             refToUiManager.ui_healthBar.sizeDelta += new Vector2(50, 0);//restore player health bar when enemy is eliminated
@@ -249,6 +255,7 @@ public class EnemyLogic : MonoBehaviour
             enemyIsEliminated = false;
             shakeTimer = 0.5f;
             refToUiManager.num_eliminated += 1;//record enemy kill
+            isTriggerOff=false;
         }       
 
     }

@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour
         currentWave = wave[wave_Index];//load in the value of wave
         if (canSpawnEnemy)
         {
-            switch(currentWave)//define the enemy instantiate function according to wave
+            switch (currentWave)//define the enemy instantiate function according to wave
             {
                 case Wave.wave_1:
                     StartCoroutine(waveSpawn_Learning(3, 0));
@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-         
+
     }
 
     private IEnumerator waveSpawn_Learning(int num_Enemy,int index_EnemyType)
@@ -95,4 +95,6 @@ public class GameManager : MonoBehaviour
         canSpawnEnemy=true;
        
     }
+
+
 }
