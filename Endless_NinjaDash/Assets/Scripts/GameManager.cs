@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;//creating singleton
     public enum GameFlow {gameStart,gamePause,gameEnd}//setting game flow
     public GameFlow gameFlow;
-    public enum Wave {wave_1,wave_2,wave_3, wave_4 };
+    public enum Wave {wave_1,wave_2,wave_3, wave_4, wave_5, wave_6 };
     public Wave[] wave=new Wave [4];
     public Wave currentWave;
     [SerializeField] private bool canSpawnEnemy;
@@ -59,7 +59,13 @@ public class GameManager : MonoBehaviour
                     break;
                 case Wave.wave_4:
                     StartCoroutine(waveSpawn(num_Enemy));
-                    isBlockMove_V=true;
+                    break;
+                case Wave.wave_5:
+                    StartCoroutine(waveSpawn(num_Enemy));                   
+                    break;
+                case Wave.wave_6:
+                    StartCoroutine(waveSpawn(num_Enemy));
+                    isBlockMove_V = true;
                     break;
             }
         }
@@ -92,9 +98,13 @@ public class GameManager : MonoBehaviour
             print(i);
         }
         yield return new WaitForEndOfFrame();
-        wave_Index = wave.Length-1;//last state of wave is repeating until the end of game
+        wave_Index +=1;//switch to next wave
+        if(wave_Index > wave.Length-1)
+        {
+            wave_Index = wave.Length-1;//last state of wave is repeating until the end of game
+        }
         canSpawnEnemy = false;
-        spawnDelay = 10;
+        spawnDelay = 12;
         yield return new WaitForSeconds(spawnDelay);  
         canSpawnEnemy=true;
        

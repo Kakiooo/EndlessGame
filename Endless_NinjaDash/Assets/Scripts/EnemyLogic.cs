@@ -20,7 +20,7 @@ public class EnemyLogic : MonoBehaviour
     [SerializeField] private Transform[] BlockEnemy_horizontal = new Transform[2];
     [SerializeField] private Transform[] BlockEnemy_vertical = new Transform[2];
     [SerializeField] private int routeIndex;//how many routes need to go
-    private bool isMoveInCurve, moveLeft, moveUp, isTriggerOff;
+    private bool isMoveInCurve, moveLeft, moveUp, isTriggerOff,isVBar,isHBar;
     public bool isAwakeHori, isAwakeVerti;
     [SerializeField] private bool enemyIsEliminated, notMoving, isBlust;
     private float curveMoveSpeed, t_InterpolatePosition, shakeTimer, scaleOfTime;
@@ -74,28 +74,27 @@ public class EnemyLogic : MonoBehaviour
         if (isMoveInCurve && CompareTag("BezierCurveEnemy"))
         {
             StartCoroutine(FollowBezierCurve(routeIndex));
-            CameraShakingLogic(); //when enemies are eliminated,camera shaking
         }
         else if (CompareTag("CircularEnemy") && !notMoving)
         {
             MoveInCircle();
-            CameraShakingLogic(); //when enemies are eliminated,camera shaking
         }
         else if (CompareTag("DirectEnemy") && !notMoving)
         {
             MoveToPlayer();
-            CameraShakingLogic(); //when enemies are eliminated,camera shaking
         }
         else if (CompareTag("BlockHorizontalEnemy") && !notMoving)
         {
+            isHBar = true;
             HorizontalBlock();
         }
         else if (CompareTag("BlockVerticalEnemy") && !notMoving)
         {
+            isVBar=true;
             VerticalBlock();
         }
 
-
+        CameraShakingLogic(); //when enemies are eliminated,camera shaking
 
         Time.timeScale = scaleOfTime;
         if (Input.GetMouseButton(0) && refToPlayer.GetComponent<PlayerMovement>().canDash)
@@ -205,43 +204,37 @@ public class EnemyLogic : MonoBehaviour
         {
             return;
         }//when enemy is destroy stop detecting the collision
-        if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true && collision.gameObject.tag == "Player")//condintion for player to eliminate enemies
+        if (isHBar||isVBar)//identify this enemy is block enemy
+        {
+            if (refToPlayer.GetComponent<PlayerMovement>().isDashing == false && collision.gameObject.tag == "Player")
+            {
+                refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 50;
+                refToUiManager.ui_healthBar.sizeDelta -= new Vector2(1000, 0) * Time.deltaTime;//enemy damage to player
+            }
+            else if(refToPlayer.GetComponent<PlayerMovement>().isDashing)
+            {
+                return;//no damage to player
+            }
+        }
+        if(!isHBar||!isVBar)//identify this enemy is other kind of enemies
         {
 
-            if (CompareTag("BlockHorizontalEnemy"))
-            {
-                enemyIsEliminated = false;//when player dash, block enemy will not do damage to player
-            }
-            else if (CompareTag("BlockVerticalEnemy"))
-            {
-                enemyIsEliminated = false;
-            }//when player dash, block enemy will not do damage to player
-            else
+            if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true && collision.gameObject.tag == "Player")//condintion for player to eliminate enemies
             {
                 enemyIsEliminated = true;
                 GetComponent<SpriteRenderer>().color = new Vector4(0, 0, 0, 0);
                 isBlust = true;
             }
-        }
-        else if (collision.gameObject.tag == "Player")
-        {
-                    
-            if (CompareTag("BlockHorizontalEnemy"))
-            {
-                refToUiManager.ui_healthBar.sizeDelta -= new Vector2(1000, 0) * Time.deltaTime;//enemy damage to player
-                refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 50;
-            }
-            else if (CompareTag("BlockVerticalEnemy"))
-            {
-                refToUiManager.ui_healthBar.sizeDelta -= new Vector2(1000, 0) * Time.deltaTime;//enemy damage to player
-                refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 50;
-            }
-            else
+            else if (collision.gameObject.tag == "Player")
             {
                 refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 10;
                 refToUiManager.ui_healthBar.sizeDelta -= new Vector2(150, 0) * Time.deltaTime;//enemy damage to player
             }
         }
+
+
+
+
 
     }
 
