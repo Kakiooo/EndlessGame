@@ -1,4 +1,4 @@
-using Microsoft.Unity.VisualStudio.Editor;
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,41 +7,38 @@ using UnityEngine.UI;
 public class EnemyLogic : MonoBehaviour
 {
     private ParticleSystem particlelSystem;
+    private GameManager refToGameManager;
     [SerializeField] private delegate void enemyMovement();
     [SerializeField] private static event enemyMovement enemyMovementFunction;
-    [SerializeField] List<enemyMovement>movementList = new List<enemyMovement>();
-    public enum EnemyState { normalState,bulletTimeState}
+    [SerializeField] List<enemyMovement> movementList = new List<enemyMovement>();
+    public enum EnemyState { normalState, bulletTimeState }
     private GameObject refToPlayer;
     private Transform circularCenter;
-    private float speed,decaySpeed,rotateAngleSpeed,originalSpeed,decayRotateAngleSpeed,originalAngleSpeed,horizontalSpeed,verticalSpeed,time_Interval;
+    private float towardsSpeed, rotateAngleSpeed, horizontalSpeed, verticalSpeed, time_Interval;
     private UIManager refToUiManager;
     [SerializeField] private Transform[] routes;//route of bezier curve
-    [SerializeField] private Transform[] BlockEnemy_horizontal=new Transform[2];
+    [SerializeField] private Transform[] BlockEnemy_horizontal = new Transform[2];
     [SerializeField] private Transform[] BlockEnemy_vertical = new Transform[2];
     [SerializeField] private int routeIndex;//how many routes need to go
-    private bool isMoveInCurve, moveLeft,moveUp,isTriggerOff;
-    public bool isAwakeHori,isAwakeVerti;
-    [SerializeField] private bool enemyIsEliminated,notMoving,isBlust;
-    private float curveMoveSpeed, t_InterpolatePosition,shakeTimer,decayCurveSpeed,originalCurveSpeed;
+    private bool isMoveInCurve, moveLeft, moveUp, isTriggerOff;
+    public bool isAwakeHori, isAwakeVerti;
+    [SerializeField] private bool enemyIsEliminated, notMoving, isBlust;
+    private float curveMoveSpeed, t_InterpolatePosition, shakeTimer, scaleOfTime;
     private Vector2 enemyPosition;
     string tagName;
     private void Awake()
     {
+        refToGameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        scaleOfTime = 1;
         particlelSystem = GetComponent<ParticleSystem>();//add particle effect
         refToPlayer = GameObject.Find("Player");
         refToUiManager = GameObject.Find("GameUI").GetComponent<UIManager>();
-        speed = Random.Range(3f,5f);
+        towardsSpeed = Random.Range(3f, 5f);
         horizontalSpeed = Random.Range(8, 12);
         verticalSpeed = Random.Range(3, 6);
-        originalSpeed = speed;       
-        decaySpeed = speed/2;
         time_Interval = 10;
-        rotateAngleSpeed = Random.Range(60f,120f);
-        originalAngleSpeed = rotateAngleSpeed;
-        decayRotateAngleSpeed = rotateAngleSpeed/3;
-        curveMoveSpeed = Random.Range(0.3f,0.7f);
-        decayCurveSpeed = curveMoveSpeed / 3;
-        originalCurveSpeed = curveMoveSpeed;
+        rotateAngleSpeed = Random.Range(60f, 120f);
+        curveMoveSpeed = Random.Range(0.3f, 0.7f);
         isMoveInCurve = true;
         shakeTimer = 0.5f;
         tagName = tag;
@@ -74,17 +71,20 @@ public class EnemyLogic : MonoBehaviour
     void Update()
     {
 
-        if (isMoveInCurve&&CompareTag("BezierCurveEnemy"))
+        if (isMoveInCurve && CompareTag("BezierCurveEnemy"))
         {
             StartCoroutine(FollowBezierCurve(routeIndex));
+            CameraShakingLogic(); //when enemies are eliminated,camera shaking
         }
-        else if (CompareTag("CircularEnemy")&&!notMoving)
+        else if (CompareTag("CircularEnemy") && !notMoving)
         {
             MoveInCircle();
+            CameraShakingLogic(); //when enemies are eliminated,camera shaking
         }
-        else if (CompareTag("DirectEnemy")&&!notMoving)
+        else if (CompareTag("DirectEnemy") && !notMoving)
         {
             MoveToPlayer();
+            CameraShakingLogic(); //when enemies are eliminated,camera shaking
         }
         else if (CompareTag("BlockHorizontalEnemy") && !notMoving)
         {
@@ -95,78 +95,81 @@ public class EnemyLogic : MonoBehaviour
             VerticalBlock();
         }
 
-        CameraShakingLogic(); //when enemies are eliminated,camera shaking
 
+
+        Time.timeScale = scaleOfTime;
+        if (Input.GetMouseButton(0) && refToPlayer.GetComponent<PlayerMovement>().canDash)
+        {
+            scaleOfTime = 0.3f;
+        }
+        else { scaleOfTime = 1f; }//bullet time when accumulate dashing
     }
 
     void MoveToPlayer()
     {
-        if (Input.GetMouseButton(0) && refToPlayer.GetComponent<PlayerMovement>().canDash)
-        {
-            speed = decaySpeed;//when dashing enemy moves slower
-        }
-        else speed = originalSpeed;//reset to normal speed when player is not dashing
-
-        transform.position = Vector2.MoveTowards(transform.position, refToPlayer.transform.position, speed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(transform.position, refToPlayer.transform.position, towardsSpeed * Time.deltaTime);
     }
 
     void MoveInCircle()
     {
-        if (Input.GetMouseButton(0) && refToPlayer.GetComponent<PlayerMovement>().canDash)
-        {
-            rotateAngleSpeed = decayRotateAngleSpeed;//when dashing enemy moves slower
-        }
-        else rotateAngleSpeed = originalAngleSpeed;//reset to normal speed when player is not dashing
-        circularCenter.transform.Rotate(Vector3.forward,rotateAngleSpeed*Time.deltaTime);      
+        circularCenter.transform.Rotate(Vector3.forward, rotateAngleSpeed * Time.deltaTime);
     }
 
     void HorizontalBlock()
     {
-        if (transform.position.x == BlockEnemy_horizontal[1].transform.position.x|| transform.position.x == BlockEnemy_horizontal[0].transform.position.x)//detect if object reach target position
+        if (refToGameManager.isBlockMove_H)
         {
-            time_Interval -= Time.deltaTime;
-            if (time_Interval <= 0)
+            if (transform.position.x == BlockEnemy_horizontal[1].transform.position.x || transform.position.x == BlockEnemy_horizontal[0].transform.position.x)//detect if object reach target position
             {
-                moveLeft = !moveLeft;
-                time_Interval = Random.Range(5,10);//reset time interval of bar moving
+                time_Interval -= Time.deltaTime;
+                if (time_Interval <= 0)
+                {
+                    moveLeft = !moveLeft;
+                    time_Interval = Random.Range(5, 10);//reset time interval of bar moving
+                }
+            }
+
+            if (moveLeft)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_horizontal[0].transform.position, horizontalSpeed * Time.deltaTime);//movetoLEft
+            }
+            else
+            {
+                transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_horizontal[1].transform.position, horizontalSpeed * Time.deltaTime);//moveToRight
             }
         }
-      
-        if (moveLeft)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_horizontal[0].transform.position, horizontalSpeed * Time.deltaTime);//movetoLEft
-        }
-         else
-        {
-            transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_horizontal[1].transform.position, horizontalSpeed * Time.deltaTime);//moveToRight
-         }
+
     }
 
     void VerticalBlock()
     {
-        if (transform.position.y == BlockEnemy_vertical[1].transform.position.y || transform.position.y == BlockEnemy_vertical[0].transform.position.y)//detect if object reach target position
+        if (refToGameManager.isBlockMove_V)
         {
-            time_Interval -= Time.deltaTime;
-            if (time_Interval <= 0)
+            if (transform.position.y == BlockEnemy_vertical[1].transform.position.y || transform.position.y == BlockEnemy_vertical[0].transform.position.y)//detect if object reach target position
             {
-                moveUp = !moveUp;
-                time_Interval = Random.Range(5, 10);//reset time interval of bar moving
+                time_Interval -= Time.deltaTime;
+                if (time_Interval <= 0)
+                {
+                    moveUp = !moveUp;
+                    time_Interval = Random.Range(5, 10);//reset time interval of bar moving
+                }
+            }
+
+            if (moveUp)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_vertical[0].transform.position, verticalSpeed * Time.deltaTime);//moveupwards
+            }
+            else
+            {
+                transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_vertical[1].transform.position, verticalSpeed * Time.deltaTime);//moveDownwards
             }
         }
 
-        if (moveUp)
-        {
-            transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_vertical[0].transform.position, verticalSpeed * Time.deltaTime);//moveupwards
-        }
-        else
-        {
-            transform.position = Vector2.MoveTowards(transform.position, BlockEnemy_vertical[1].transform.position, verticalSpeed * Time.deltaTime);//moveDownwards
-        }
     }
 
     private IEnumerator FollowBezierCurve(int routeNumber)//make enemy move along bezier curve
     {
-        
+
         isMoveInCurve = false;//control the coroutine to start
         Vector2 p0 = routes[routeNumber].GetChild(0).position;
         Vector2 p1 = routes[routeNumber].GetChild(1).position;
@@ -177,12 +180,6 @@ public class EnemyLogic : MonoBehaviour
 
         while (t_InterpolatePosition < 1)
         {
-            if (Input.GetMouseButton(0) && refToPlayer.GetComponent<PlayerMovement>().canDash)
-            {
-                curveMoveSpeed = decayCurveSpeed;//when dashing enemy moves slower
-            }
-            else curveMoveSpeed = originalCurveSpeed;//reset to normal speed when player is not dashing
-
 
             t_InterpolatePosition += Time.deltaTime * curveMoveSpeed;//interpolating point moving
             enemyPosition = Mathf.Pow(1 - t_InterpolatePosition, 3) * p0 +
@@ -195,8 +192,8 @@ public class EnemyLogic : MonoBehaviour
 
         t_InterpolatePosition = 0;//reset position of interpolating point
         routeIndex++;//change to another bezier curve route
-        if (CompareTag("BezierCurveEnemy")&&routeIndex > routes.Length - 1) routeIndex = 0;//reset the route back to 0 to loop the coroutine
-        
+        if (CompareTag("BezierCurveEnemy") && routeIndex > routes.Length - 1) routeIndex = 0;//reset the route back to 0 to loop the coroutine
+
         isMoveInCurve = true;//loop the coroutine      
 
     }
@@ -210,22 +207,49 @@ public class EnemyLogic : MonoBehaviour
         }//when enemy is destroy stop detecting the collision
         if (refToPlayer.GetComponent<PlayerMovement>().isDashing == true && collision.gameObject.tag == "Player")//condintion for player to eliminate enemies
         {
-            enemyIsEliminated = true;
-            GetComponent<SpriteRenderer>().color = new Vector4(0, 0, 0, 0);
-            isBlust=true;
+
+            if (CompareTag("BlockHorizontalEnemy"))
+            {
+                enemyIsEliminated = false;//when player dash, block enemy will not do damage to player
+            }
+            else if (CompareTag("BlockVerticalEnemy"))
+            {
+                enemyIsEliminated = false;
+            }//when player dash, block enemy will not do damage to player
+            else
+            {
+                enemyIsEliminated = true;
+                GetComponent<SpriteRenderer>().color = new Vector4(0, 0, 0, 0);
+                isBlust = true;
+            }
         }
         else if (collision.gameObject.tag == "Player")
         {
-            refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 10;
-            refToUiManager.ui_healthBar.sizeDelta -= new Vector2(150, 0)*Time.deltaTime;//enemy damage to player
+                    
+            if (CompareTag("BlockHorizontalEnemy"))
+            {
+                refToUiManager.ui_healthBar.sizeDelta -= new Vector2(1000, 0) * Time.deltaTime;//enemy damage to player
+                refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 50;
+            }
+            else if (CompareTag("BlockVerticalEnemy"))
+            {
+                refToUiManager.ui_healthBar.sizeDelta -= new Vector2(1000, 0) * Time.deltaTime;//enemy damage to player
+                refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 50;
+            }
+            else
+            {
+                refToPlayer.GetComponent<PlayerMovement>().playerHealth -= 10;
+                refToUiManager.ui_healthBar.sizeDelta -= new Vector2(150, 0) * Time.deltaTime;//enemy damage to player
+            }
         }
+
     }
 
     private void CameraShakingLogic()
     {
         if (shakeTimer > 0 && enemyIsEliminated)
         {
-            isTriggerOff=true;
+            isTriggerOff = true;
             shakeTimer -= Time.deltaTime;
             refToUiManager.CameraShake();
             if (isBlust)//trigger the blust when enemy is eliminated
@@ -246,8 +270,8 @@ public class EnemyLogic : MonoBehaviour
     }
     private void OnDestroy()
     {
-        
-        if (gameObject != null)
+
+        if (gameObject != null && !CompareTag("BlockVerticalEnemy") && !CompareTag("BlockHorizontalEnemy"))
         {
             refToPlayer.GetComponent<PlayerMovement>().playerHealth += 10;
             refToUiManager.ui_healthBar.sizeDelta += new Vector2(50, 0);//restore player health bar when enemy is eliminated
@@ -255,8 +279,8 @@ public class EnemyLogic : MonoBehaviour
             enemyIsEliminated = false;
             shakeTimer = 0.5f;
             refToUiManager.num_eliminated += 1;//record enemy kill
-            isTriggerOff=false;
-        }       
+            isTriggerOff = false;
+        }
 
     }
 }

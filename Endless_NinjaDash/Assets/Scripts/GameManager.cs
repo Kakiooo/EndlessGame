@@ -21,7 +21,9 @@ public class GameManager : MonoBehaviour
     public Camera refToCM;
     [SerializeField] private float spawnDelay,timer;
     private int spawnPointIndex,enemyIndex;
-    
+    public bool isBlockMove_H, isBlockMove_V;
+
+
     private void Awake()
     {
         instance = this;//connect to this script
@@ -50,12 +52,14 @@ public class GameManager : MonoBehaviour
                     break;
                 case Wave.wave_2:
                     StartCoroutine(waveSpawn_Learning(3, 1));
+                    isBlockMove_H=true;
                     break;
                 case Wave.wave_3:
                     StartCoroutine(waveSpawn_Learning(3, 2));
                     break;
                 case Wave.wave_4:
                     StartCoroutine(waveSpawn(num_Enemy));
+                    isBlockMove_V=true;
                     break;
             }
         }

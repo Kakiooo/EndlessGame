@@ -76,7 +76,7 @@ public class UIManager : MonoBehaviour
     {
         if (refToPlayerScript.dashPower > 10)
         {
-            direction.transform.localScale += new Vector3(0, Time.deltaTime,0);//when charging the direction mark will become larger to indicate stronger dash
+            direction.transform.localScale += new Vector3(0, Time.unscaledDeltaTime, 0);//when charging the direction mark will become larger to indicate stronger dash
             if (refToPlayerScript.dashPower >= 30)
             {
                 direction.transform.localScale = new Vector3(1, 3, 0);//limit the maximum size of direction mark
@@ -89,21 +89,10 @@ public class UIManager : MonoBehaviour
     }
     void timeCounting()
     {
-        //num_Time_milliSec += Time.deltaTime;
-        //if (num_Time_milliSec >=9)
-        //{
-        //    num_Time_Second += 1;
-        //    num_Time_milliSec = -1;
-        //    refToTimeInfo.text = "0" + num_Time_Minute.ToString("F0") + ":" + num_Time_Second.ToString("F0") + "0";
-        //}
-        //if(num_Time_Second > 5)
-        //{
-        //    num_Time_Minute += 1;
-        //    num_Time_Second = 0;
-        //}  
-        //refToTimeInfo.text = "0" + num_Time_Minute.ToString("F0") + ":"+ num_Time_Second.ToString("F0")+ num_Time_milliSec.ToString("F0");
-
-
+        num_Time+=Time.unscaledDeltaTime;
+        int minutes = Mathf.FloorToInt(num_Time / 60);
+        int seconds = Mathf.FloorToInt(num_Time - minutes*60);
+        refToTimeInfo.text = minutes + ":" + seconds;
     }
 
     void HealthBar()
@@ -133,7 +122,7 @@ public class UIManager : MonoBehaviour
         float zoomOutTime = 3f;
         if (refToPlayerScript.isDuringCharging)//when dashing...
         { 
-            refToVirtualCM.m_Lens.OrthographicSize-= zoomInTime * Time.deltaTime;//zoom in virtual camera when player is dashing
+            refToVirtualCM.m_Lens.OrthographicSize-= zoomInTime * Time.unscaledDeltaTime;//zoom in virtual camera when player is dashing
             if (refToVirtualCM.m_Lens.OrthographicSize <= 5)
             {
                 refToVirtualCM.m_Lens.OrthographicSize=5;//when zoom in camera limit the size of virtual camera
@@ -141,7 +130,7 @@ public class UIManager : MonoBehaviour
         }
         else //when is not dashing...
         { 
-            refToVirtualCM.m_Lens.OrthographicSize += zoomOutTime * Time.deltaTime;//zoom out virtual camera when player is not dashing
+            refToVirtualCM.m_Lens.OrthographicSize += zoomOutTime * Time.unscaledDeltaTime;//zoom out virtual camera when player is not dashing
             if (refToVirtualCM.m_Lens.OrthographicSize >=8)
             {
                 refToVirtualCM.m_Lens.OrthographicSize =8;//when zoom out camera limit the size of virtual camera

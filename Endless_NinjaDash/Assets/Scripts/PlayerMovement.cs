@@ -74,6 +74,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void DashPowerCharge()
     {
+        Debug.Log(dashChargeTime);
         if (!Input.GetKey(KeyCode.Mouse0))
         {
 
@@ -87,11 +88,11 @@ public class PlayerMovement : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Mouse0) && canDash)
         {
-            dashPower += 10*Time.deltaTime;//adding dash power when charging for longer time
+            dashPower += 10*Time.unscaledDeltaTime;//adding dash power when charging for longer time
             isDashCharged = true;
             isDuringCharging = true;//use to determine if the camera need to zoom
             playerRigid.velocity = new Vector2(playerDirectionHorizontal * playerVelocity * decaySpeed, playerDirectionVertical * playerVelocity * decaySpeed);//when player accumulate dashing,velocity decreases
-            dashChargeTime -= Time.deltaTime;//hold the mouse and wait for dash
+            dashChargeTime -= Time.unscaledDeltaTime;//hold the mouse and wait for dash
             if (dashChargeTime < 0)
             {
                 float maximumDashPower = 30;
